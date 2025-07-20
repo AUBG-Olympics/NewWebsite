@@ -1,48 +1,67 @@
 import React from "react";
+
 const LandingSection: React.FC = () => (
-  <div>
+  <div className="relative min-h-[100vh]">
+    {/* Pattern background - sits behind */}
     <div
-      className="h-[calc(100vh)] bg-orange-500  shadow-lg flex flex-col items-center justify-center border-8  border-white 
-      
-      "
+      className="absolute inset-0 pattern-triangles pattern-red-500 pattern-size-1 z-10 pattern-opacity-40"
       style={{
-        backgroundImage: "url('/assets/background4.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        height: "100%",
+        width: "100%",
+      }}
+    ></div>
+
+    {/* Main content - sits in front */}
+    <div
+      className="h-[100vh] shadow-lg flex flex-col items-center justify-center border-8 border-white relative z-10 rounded-b-3xl"
+      style={{
+        backgroundImage: "url('/assets/background6.png')",
+        backgroundSize: "150%",
+        [window.innerWidth >= 768 && 'backgroundSize']: "cover",
+        backgroundPosition: "90% center",
+        [window.innerWidth >= 768 && 'backgroundPosition']: "center",
+        backgroundRepeat: "no-repeat"
       }}
     >
- 
-      {/* <div className="flex flex-row justify-center items-start h-[40rem] bg mt-0 ">
-        <img className="h-full relative top-10" src="/assets/waving_fireguy.png" alt="Waving Fireguy" />
-        <div className="relative -ml-6 -mt-8" style={{ width: 430, height: 320 }}>
-          <img
-            src="/assets/speech_bubble.png"
-            alt="Speech Bubble"
-            className="absolute -top-2 left-0 w-full h-full"
-            style={{ transform: "rotate(15deg)" }}
-          />
-          <p
-            className="absolute -top-6 left-3 w-full h-full flex flex-col items-center justify-center text-xl px-8 py-6 text-gray-800 font-semibold text-center"
-            style={{ fontFamily: "'Lato', sans-serif" }}
+      <div className="flex flex-col items-start justify-center w-full h-full pl-10 md:pl-12">
+        {/* Speech bubble background for the text */}
+        <div
+          className={`
+            flex flex-col items-center justify-center text-center mb-2
+            w-[320px] min-h-[90px] 
+            md:w-[370px] md:min-h-[170px]
+          `}
+          style={{
+            fontFamily: "'Lato', sans-serif",
+            backgroundImage: "url('/assets/speech_bubble.png')",
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            padding: "2rem 1rem 2.5rem 1rem", // Less padding on mobile
+            [window.innerWidth >= 768 && 'padding']: "3.5rem 2.5rem 5.5rem 2.5rem", // Use original padding for md+
+            boxSizing: "border-box",
+          }}
+        >
+          <span className="text-black text-xl md:text-2xl lg:text-3xl xl:text-4xl">
+            Welcome to
+          </span>
+          <span
+            className="text-yellow-500 font-extrabold text-xl md:text-3xl lg:text-4xl xl:text-5xl drop-shadow-md my-2 md:my-3"
+            style={{ fontFamily: "'Permanent Marker', cursive" }}
           >
-            Hello, and welcome to{" "}
-            <span
-              className="text-yellow-500 font-extrabold text-4xl drop-shadow-md my-2"
-              style={{ fontFamily: "'Permanent Marker', cursive" }}
-            >
-              AUBG Olympics
-            </span>
-            the biggest sports club at AUBG
-          </p>
+            AUBG Olympics
+          </span>
         </div>
-      </div> */}
+        {/* Fireguy below, left-aligned */}
+        <img
+          src="/assets/waving_fireguy.png"
+          alt="Waving Fireguy"
+          className="w-[220px] md:w-[320px] lg:w-[350px] h-auto"
+          style={{ maxWidth: 500 }}
+        />
+      </div>
     </div>
-         <div className="h-[calc(100vh)] absolute x-0 y-0 pattern-triangles pattern-red-500 
-  pattern-size-1">
-
-      </div>
-      </div>
-    
+  </div>
 );
 
 export default LandingSection;

@@ -130,10 +130,10 @@ const EventsSection: React.FC = () => {
 						onClick={scrollPrev}
 						disabled={!canScrollPrev}
 						aria-label="Previous"
-						className="absolute left-0 z-30 bg-white border-2 border-black rounded-full shadow-md w-12 h-12 flex justify-center transition hover:bg-orange-200 disabled:opacity-40 disabled:cursor-not-allowed"
+						className="hidden md:block absolute left-0 z-30 bg-white border-2 border-black rounded-full shadow-md w-12 h-12 flex justify-center transition hover:bg-orange-200 disabled:opacity-40 disabled:cursor-not-allowed"
 						style={{ transform: "translateX(-60%)" }}
 					>
-						<span style={{ fontSize: 28, fontWeight: "bold" }}>{"‹"}</span>
+						<span style={{ fontSize: 28, fontWeight: "bold" , color:"black"}}>{"‹"}</span>
 					</button>
 					<div
 						className="overflow-hidden mx-auto"
@@ -201,10 +201,10 @@ const EventsSection: React.FC = () => {
 						onClick={scrollNext}
 						disabled={!canScrollNext}
 						aria-label="Next"
-						className="absolute right-0 z-30 bg-white border-2 border-black rounded-full shadow-md w-12 h-12 flex  justify-center transition hover:bg-orange-200 disabled:opacity-40 disabled:cursor-not-allowed"
+						className="hidden md:block absolute right-0 z-30 bg-white border-2 border-black rounded-full shadow-md w-12 h-12 flex  justify-center transition hover:bg-orange-200 disabled:opacity-40 disabled:cursor-not-allowed"
 						style={{ transform: "translateX(60%)" }}
 					>
-						<span style={{ fontSize: 28, fontWeight: "bold" }}>{"›"}</span>
+						<span style={{ fontSize: 28, fontWeight: "bold", color:"black", padding:"auto" }}>{"›"}</span>
 					</button>
 				</div>
 			</div>
