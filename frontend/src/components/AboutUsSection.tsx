@@ -48,9 +48,9 @@ const AboutUsSection: React.FC = () => (
           alt="Trophy Fireguy"
           className="absolute hidden md:block"
           style={{
-            height: "95%",
+            height: "70%",
             right: 0,
-            top: 0,
+            top: 10,
             transform: "translateY(-50%)",
           }}
         />

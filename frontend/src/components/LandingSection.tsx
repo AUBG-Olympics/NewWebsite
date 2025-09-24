@@ -17,19 +17,20 @@ const LandingSection: React.FC = () => (
       style={{
         backgroundImage: "url('/assets/background6.png')",
         backgroundSize: "150%",
-        [window.innerWidth >= 768 && 'backgroundSize']: "cover",
+        [window.innerWidth >= 768 && "backgroundSize"]: "cover",
         backgroundPosition: "90% center",
-        [window.innerWidth >= 768 && 'backgroundPosition']: "center",
-        backgroundRepeat: "no-repeat"
+        [window.innerWidth >= 768 && "backgroundPosition"]: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <div className="flex flex-col items-start justify-center w-full h-full pl-10 md:pl-12">
         {/* Speech bubble background for the text */}
         <div
           className={`
-            flex flex-col items-center justify-center text-center mb-2
+            flex flex-col items-center justify-center text-center
             w-[320px] min-h-[90px] 
-            md:w-[370px] md:min-h-[170px]
+            md:w-[370px] md:min-h-[250px]
+            mt-14
           `}
           style={{
             fontFamily: "'Lato', sans-serif",
@@ -38,7 +39,8 @@ const LandingSection: React.FC = () => (
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             padding: "2rem 1rem 2.5rem 1rem", // Less padding on mobile
-            [window.innerWidth >= 768 && 'padding']: "3.5rem 2.5rem 5.5rem 2.5rem", // Use original padding for md+
+            [window.innerWidth >= 768 && "padding"]:
+              "2.5rem 1.5rem 6.5rem 1.5rem", // Use original padding for md+
             boxSizing: "border-box",
           }}
         >
@@ -46,17 +48,18 @@ const LandingSection: React.FC = () => (
             Welcome to
           </span>
           <span
-            className="text-yellow-500 font-extrabold text-xl md:text-3xl lg:text-4xl xl:text-5xl drop-shadow-md my-2 md:my-3"
+            className="text-yellow-500 font-extrabold text-xl md:text-3xl lg:text-4xl xl:text-5xl drop-shadow-md mt-1 md:mt-2"
             style={{ fontFamily: "'Permanent Marker', cursive" }}
           >
             AUBG Olympics
           </span>
         </div>
+
         {/* Fireguy below, left-aligned */}
         <img
           src="/assets/waving_fireguy.png"
           alt="Waving Fireguy"
-          className="w-[220px] md:w-[320px] lg:w-[350px] h-auto"
+          className="w-[220px] md:w-[320px] lg:w-[350px] h-auto mt-[-5px] md:mt-[-60px]"
           style={{ maxWidth: 500 }}
         />
       </div>
