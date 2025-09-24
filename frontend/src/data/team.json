@@ -1,0 +1,642 @@
+[
+  {
+    "id": "ilian-ivanov",
+    "name": "Ilian Ivanov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_39_tu1s2c.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_58_mswv1x.png",
+    "boardRole": "President of Olympics",
+    "isBoard": true,
+    "isHead": false,
+    "position": "President of Olympics & Member of Challenge Organizers",
+    "departments": ["Board", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/ilian.ivanov.1422",
+      "instagram": "https://www.instagram.com/ilian_ivanov32?igsh=MXc5ZGF0ZmxlNjJjcQ==",
+      "linkedin": "https://www.linkedin.com/in/ilian-ivanov-56b9b7254?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+    }
+  },
+  {
+    "id": "nia-hristova",
+    "name": "Nia Hristova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_57_hl80zq.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_85_fvgtht.png",
+    "boardRole": "Vice-President & Head of Logistics",
+    "isBoard": true,
+    "isHead": false,
+    "position": "Vice-President & Head of Logistics & Member of Challenge Organizers",
+    "departments": ["Board", "Logistics", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/ni.hristova",
+      "instagram": "https://www.instagram.com/niiahristova?igsh=MTQzdWw2OHBvYWIwcQ==",
+      "linkedin": "https://www.linkedin.com/in/nia-hristova-178a8b269?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    }
+  },
+  {
+    "id": "diana-evtimova",
+    "name": "Diana Evtimova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_7_bch30t.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_10_reab2o.png",
+    "boardRole": "Head of Sponsorship",
+    "isBoard": true,
+    "isHead": false,
+    "position": "Head of Sponsorship",
+    "departments": ["Board", "Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/diana.evtimova.3/",
+      "instagram": "https://www.instagram.com/devtimovaa/",
+      "linkedin": "https://www.linkedin.com/in/diana-evtimova-840b77241/"
+    }
+  },
+  {
+    "id": "gergana-bangeeva",
+    "name": "Gergana Bangeeva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_15_r76wet.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_22_bmhvwp.png",
+    "boardRole": "Head of Marketing",
+    "isBoard": true,
+    "isHead": false,
+    "position": "Head of Marketing & Member of Video and PR",
+    "departments": ["Board", "Marketing", "Video", "Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/gergana.bangeeva?locale=bg_BG",
+      "instagram": "https://www.instagram.com/gerganabangeeva/",
+      "linkedin": "https://www.linkedin.com/in/gergana-bangeeva-757062277/"
+    }
+  },
+  {
+    "id": "david-mitov",
+    "name": "David Mitov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_31_yccvh5.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_46_yv1owa.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Co-Head of Challenge Organizers",
+    "departments": ["Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100086147155347",
+      "instagram": "https://www.instagram.com/d_m_43?igsh=eXFsb25jb2gzajJ1&utm_source=qr",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "stefan-tosunov",
+    "name": "Stefan Tosunov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_17_ltt8xn.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_25_wvrron.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Co-Head of Challenge Organizers & Member of Sponsorship",
+    "departments": ["Challenge Organizers", "Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/stefan.tosunov",
+      "instagram": "https://www.instagram.com/stefan_tosunov/",
+      "linkedin": "https://www.linkedin.com/in/stefan-tosunov-b70539234/"
+    }
+  },
+  {
+    "id": "marko-milanov",
+    "name": "Marko Milanov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_49_kmpgv7.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_73_jmqbte.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of BBQ & Member of Challenge Organizers",
+    "departments": ["BBQ", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/marko.milanov.501",
+      "instagram": "https://www.instagram.com/marko_milanov45/",
+      "linkedin": "https://www.linkedin.com/in/marko-milanov-5299182b9/"
+    }
+  },
+  {
+    "id": "dzhan-hyusein",
+    "name": "Dzhan Hyusein",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_19_iffwvr.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_28_xkeh2n.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of Video & Member of Marketing and Challenge Organizers",
+    "departments": ["Video", "Marketing", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100010024385312",
+      "instagram": "https://www.instagram.com/dzhan_hyusein/",
+      "linkedin": "https://www.linkedin.com/in/dzhan-hyusein-3b897a274/"
+    }
+  },
+  {
+    "id": "nikol-tileva",
+    "name": "Nikol Tileva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_65_ay47fy.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_97_hpyx0v.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of PR",
+    "departments": ["PR"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100008686486534",
+      "instagram": "https://www.instagram.com/nikoltileva/",
+      "linkedin": "https://www.linkedin.com/in/nikol-tileva-6944b5252/"
+    }
+  },
+  {
+    "id": "hristo-karamanolev",
+    "name": "Hristo Karamanolev",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_1_lhwgtw.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_1_xyvhid.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Sponsorship", "BBQ"],
+    "links": {
+      "facebook": "https://www.facebook.com/",
+      "instagram": "https://www.instagram.com/?__pwa=1",
+      "linkedin": "https://www.linkedin.com/feed/"
+    }
+  },
+  {
+    "id": "aleksandar-peev",
+    "name": "Alexander Peew",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_63_rf7ezl.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_94_axapxq.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers", "Logistics"],
+    "links": {
+      "facebook": "https://www.facebook.com/AlexPeew",
+      "instagram": "https://www.instagram.com/alexpeew?igsh=MW56NGIzdTBhengwaA==&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/in/aleksandar-peev-945532222?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    }
+  },
+  {
+    "id": "teodor-kovachev",
+    "name": "Teodor Kovachev",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_75_k6kbhi.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_112_kuiy3s.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of IT & Member of Logistics",
+    "departments": ["Logistics", "IT"],
+    "links": {
+      "facebook": "https://www.facebook.com/teodor.kovachev.12",
+      "instagram": "https://www.instagram.com/teodor.kovachev.12?igsh=ejRjajd0Nm94Mzh5",
+      "linkedin": "https://www.linkedin.com/in/teodor-kovachev-5820a0282?trk=contact-info"
+    }
+  },
+  {
+    "id": "teodora-nedeva",
+    "name": "Teodora Nedeva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_79_jivuk4.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_118_qicwat.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Logistics", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100070385360857",
+      "instagram": "https://www.instagram.com/teodoranedeva2?igsh=eDRoeWFvaWRvd2ph&utm_source=qr",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "zdravko-rashkov",
+    "name": "Zdravko Rashkov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_73_ujdy6e.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_109_mgus1v.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["BBQ", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/zdravko.rashkov.9",
+      "instagram": "https://www.instagram.com/zdravko_rashkov/",
+      "linkedin": "https://www.linkedin.com/in/zdravko-rashkov-63a24923b/"
+    }
+  },
+  {
+    "id": "aleksandra-mihaylova",
+    "name": "Aleksandra Mihaylova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_25_taz7qt.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_37_ehwmeb.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers", "Logistics"],
+    "links": {
+      "facebook": "https://www.facebook.com/aleksandra.mihaylova.549",
+      "instagram": "https://www.instagram.com/alexandra.mmihaylova/",
+      "linkedin": "https://www.linkedin.com/in/aleksandra-mihaylova-a90910294/"
+    }
+  },
+  {
+    "id": "aleks-atanasov",
+    "name": "Aleks Atanasov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_23_a3ycad.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_34_t6wfet.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/alex.atanasov.9041",
+      "instagram": "https://www.instagram.com/alex_atanasov25/",
+      "linkedin": "https://www.linkedin.com/in/aleks-atanasov/"
+    }
+  },
+  {
+    "id": "simona-trendafilova",
+    "name": "Simona Trendafilova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_53_tshwcx.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_79_qvfpyd.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Video", "Marketing"],
+    "links": {
+      "facebook": "https://www.facebook.com/simona.trend04/",
+      "instagram": "https://www.instagram.com/mangoes_are_my_life?igsh=MWhubHA0enp3cjgwbg==",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "spasiela-gizdova",
+    "name": "Spasiela Gizdova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_71_dsrxx3.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_106_qqkajg.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["PR", "Challenge Organizers", "Logistics"],
+    "links": {
+      "facebook": "https://www.facebook.com/spasiela.gizdova",
+      "instagram": "https://www.instagram.com/spasielkaaa?igsh=MWlzMHZsdHVva2ZzNA==&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/in/spasiela-gizdova-7448812bb?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    }
+  },
+  {
+    "id": "nikolay-pavlov",
+    "name": "Nikolay Pavlov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_61_rrxktm.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_91_wi38ka.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Logistics", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/niko.pavlov.773",
+      "instagram": "https://www.instagram.com/goalsolo14?igsh=cXJoeWZrc3hodWJm&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/in/nikolay-pavlov-95094227b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    }
+  },
+  {
+    "id": "teodora-stefanova",
+    "name": "Teodora Stefanova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_77_voivxo.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_115_hvwlu6.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["PR"],
+    "links": {
+      "facebook": "https://www.facebook.com/teddy.stefanova.2003",
+      "instagram": "https://www.facebook.com/teddy.stefanova.2003",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "anna-dineva",
+    "name": "Anna Dineva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_29_v5bjwy.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_43_unuupc.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers", "PR"],
+    "links": {
+      "facebook": "https://www.facebook.com/anni.dineva.5",
+      "instagram": "https://www.instagram.com/a_dineva/?hl=en",
+      "linkedin": "https://www.linkedin.com/in/anna-dineva-5aa8942a2/"
+    }
+  },
+  {
+    "id": "stefania-dimova",
+    "name": "Stefania Dimova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_9_onmulj.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_13_thyvbn.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100014913512973",
+      "instagram": "https://www.instagram.com/stefaniya.dimova/#",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "iva-nikolaeva",
+    "name": "Iva Nikolaeva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_21_w2q4f3.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_31_icbaiv.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/iva.nikolaevaa",
+      "instagram": "https://www.instagram.com/iva.nklv/",
+      "linkedin": "https://www.linkedin.com/in/iva-nikolaeva-494079337/"
+    }
+  },
+  {
+    "id": "mario-boyanov",
+    "name": "Mario Boyanov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_5_pjprli.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_7_sxbjnm.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers", "IT", "Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/jorocosa",
+      "instagram": "https://www.instagram.com/marioboyanov?igsh=M2toMDY3Zzd0YXVt&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/in/mario-boyanov-344083278?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    }
+  },
+  {
+    "id": "raya-koleva",
+    "name": "Raya Koleva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_67_ehw6co.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_100_jqc8el.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing"],
+    "links": {
+      "facebook": null,
+      "instagram": null,
+      "linkedin": null
+    }
+  },
+  {
+    "id": "raya-zasheva",
+    "name": "Raya Zasheva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_69_a6ibpr.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_103_kbpnqt.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["PR"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100085828025741&locale=bg_BG",
+      "instagram": "https://www.instagram.com/raya_zasheva/",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "andzhela-dyulgerova",
+    "name": "Andzhela Dyulgerova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_27_roiakc.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_40_e5yhid.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing"],
+    "links": {
+      "facebook": "https://www.facebook.com/share/18BSpfe7uL/Rmibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/andjelaxld?igsh=MTF0bmJzanJxa3M1Yw==&utm_source=qr",
+      "linkedin": "http://inkedin.com/in/andzhela-dyulgerova-0328b8263"
+    }
+  },
+  {
+    "id": "konstantin-strashnikov",
+    "name": "Konstantin Strashnikov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_47_dxl69s.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_70_tcrqhi.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing", "Video"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100014176747892",
+      "instagram": "https://www.instagram.com/konstantin_strashnikov?igsh=MXZmdXduMzdsNG1wdQ==&utm_source=qr",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "iren-dimitrova",
+    "name": "Iren Dimitrova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_43_zq1dbo.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_61_uhx8fw.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100071125059145",
+      "instagram": "https://www.instagram.com/irdimitrova?igsh=MW00azlwZTVpa2hlOA==&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/in/iren-dimitrova?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+    }
+  },
+  {
+    "id": "ivana-filipova",
+    "name": "Ivana Filipova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_43_zq1dbo.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_64_gflrfz.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing", "Video"],
+    "links": {
+      "facebook": "https://www.facebook.com/share/14rVAZ8iL6/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/ivanaafilipova?igsh=cXV2M2NodXE1MGQ=&utm_source=qr",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "mila-balkandzhieva",
+    "name": "Mila Balkandzhieva",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_20_zdsyxb.png",
+    "ddayPhoto": "/MemberPhotosWithBG/Sponsorship_Signatures_Website_Photos.zip_-_19_xqandt.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Sponsorship", "Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100007015937863",
+      "instagram": "https://www.instagram.com/milaa.dimitrova/",
+      "linkedin": "https://www.linkedin.com/in/mila-balkandzhieva-a940952b9/"
+    }
+  },
+  {
+    "id": "neda-oresharova",
+    "name": "Neda Oresharova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_11_jr6aaq.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_16_hqjgz5.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Sponsorship"],
+    "links": {
+      "facebook": null,
+      "instagram": null,
+      "linkedin": null
+    }
+  },
+  {
+    "id": "nika-gulmamadova",
+    "name": "Nika Gulmamadova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_59_zlxu0d.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_88_hi3erm.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing"],
+    "links": {
+      "facebook": "https://www.facebook.com/share/18ajnpWTfv/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/gnikax/",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "stiliyan-stoytchev",
+    "name": "Stiliyan Stoytchev",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_3_tinkyi.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_4_bvc13t.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Sponsorship"],
+    "links": {
+      "facebook": "https://www.facebook.com/stenli.stoychev",
+      "instagram": "https://www.instagram.com/stenli.stoychev/",
+      "linkedin": "https://www.linkedin.com/in/stiliyan-stoychev-a7134022b/"
+    }
+  },
+  {
+    "id": "maxim-pivtorak",
+    "name": "Maxim Pivtorak",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_51_bexidd.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_76_mwpuif.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers", "BBQ"],
+    "links": {
+      "facebook": null,
+      "instagram": null,
+      "linkedin": null
+    }
+  },
+  {
+    "id": "hana-egikyan",
+    "name": "Hana Egikyan",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_35_lyzlgx.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_52_z2py2i.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Marketing", "Video"],
+    "links": {
+      "facebook": "https://www.facebook.com/hana.egikian",
+      "instagram": "https://www.instagram.com/h_egikyan?igsh=MTNmYzN5NGV2cTkwcw==&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/in/hana-egikyan-0694371b4/"
+    }
+  },
+  {
+    "id": "nakubakht-khushqadamova",
+    "name": "Nakubakht Khushqadamova",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_55_jrcdfn.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_82_e9hqzb.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["PR"],
+    "links": {
+      "facebook": null,
+      "instagram": null,
+      "linkedin": null
+    }
+  },
+  {
+    "id": "helin-shakiroglu",
+    "name": "Helin Shakiroglu",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_37_jm2wf9.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_55_yamskp.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers"],
+    "links": {
+      "facebook": null,
+      "instagram": null,
+      "linkedin": null
+    }
+  },
+  {
+    "id": "jacob-bishop",
+    "name": "Jacob Bishop",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_45_uqq6ds.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_67_vrkzui.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Challenge Organizers"],
+    "links": {
+      "facebook": "https://www.facebook.com/share/14rmGVGZuh/",
+      "instagram": "https://www.instagram.com/jacob_bishop11/",
+      "linkedin": null
+    }
+  },
+  {
+    "id": "dimitar-vitliyanov",
+    "name": "Dimitar Vitliyanov",
+    "photo": "/NewMemberPhotos/Sponsorship_Signatures_Website_Photos.zip_-_33_aqqs2j.png",
+    "ddayPhoto": "/MemberPhotosDDay/Sponsorship_Signatures_Website_Photos.zip_-_49_irpu7f.png",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "Member of",
+    "departments": ["Logistics"],
+    "links": {
+      "facebook": null,
+      "instagram": null,
+      "linkedin": null
+    }
+  }
+]
