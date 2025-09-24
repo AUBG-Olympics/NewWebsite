@@ -1,13 +1,12 @@
 [build]
 base    = "frontend"
 command = "pnpm install --no-frozen-lockfile && pnpm build"
-publish = "frontend/dist"
+publish = "dist"
 
 [build.environment]
 NODE_VERSION = "20"
 PNPM_FLAGS   = "--no-frozen-lockfile"
 
-# React Router SPA fallback
 [[redirects]]
 from = "/*"
 to   = "/index.html"
