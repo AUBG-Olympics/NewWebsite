@@ -63,26 +63,49 @@ const EventsSection: React.FC = () => {
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => {
-      setCanScrollPrev(emblaApi.canScrollPrev());
-      setCanScrollNext(emblaApi.canScrollNext());
-    };
-    emblaApi.on("select", onSelect);
-    onSelect();
-    return () => emblaApi.off("select", onSelect);
-  }, [emblaApi]);
+// Listen to selection changes (enable/disable arrows)
+useEffect(() => {
+  if (!emblaApi) return;
 
-  useEffect(() => {
-    if (!emblaApi) return;
-    if (autoScrollInterval.current) clearInterval(autoScrollInterval.current);
-    autoScrollInterval.current = setInterval(() => {
-      if (emblaApi.canScrollNext()) emblaApi.scrollNext();
-      else emblaApi.scrollTo(0);
-    }, 10000);
-    return () => autoScrollInterval.current && clearInterval(autoScrollInterval.current);
-  }, [emblaApi]);
+  const onSelect = () => {
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  };
+
+  emblaApi.on("select", onSelect);
+  onSelect();
+
+  // cleanup must return () => void
+  return () => {
+    // ensure the cleanup returns void, not EventHandlerType
+    void emblaApi.off("select", onSelect);
+  };
+}, [emblaApi]);
+
+// Autoscroll
+useEffect(() => {
+  if (!emblaApi) return;
+
+  // clear any previous interval
+  if (autoScrollInterval.current) {
+    clearInterval(autoScrollInterval.current);
+    autoScrollInterval.current = null;
+  }
+
+  autoScrollInterval.current = setInterval(() => {
+    if (emblaApi.canScrollNext()) emblaApi.scrollNext();
+    else emblaApi.scrollTo(0);
+  }, 10000);
+
+  // cleanup must always be () => void
+  return () => {
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+  };
+}, [emblaApi]);
+
 
   return (
     <section
