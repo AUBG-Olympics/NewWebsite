@@ -176,11 +176,11 @@ const TeamPage: React.FC = () => {
         </p>
       )}
 
-      {selected.boardRole &&
+      {/* {selected.boardRole &&
         selected.position &&
         selected.position !== selected.boardRole && (
           <p className="mt-1 text-sm text-gray-700">{selected.position}</p>
-        )}
+        )} */}
 
       {selected.departments?.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">

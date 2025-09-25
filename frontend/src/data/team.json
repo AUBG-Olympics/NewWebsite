@@ -7,7 +7,7 @@
     "boardRole": "President of Olympics",
     "isBoard": true,
     "isHead": false,
-    "position": "President of Olympics & Member of Challenge Organizers",
+    "position": "President of Olympics",
     "departments": ["Board", "Challenge Organizers"],
     "links": {
       "facebook": "https://www.facebook.com/ilian.ivanov.1422",
@@ -23,7 +23,7 @@
     "boardRole": "Vice-President & Head of Logistics",
     "isBoard": true,
     "isHead": false,
-    "position": "Vice-President & Head of Logistics & Member of Challenge Organizers",
+    "position": "Vice-President & Head of Logistics",
     "departments": ["Board", "Logistics", "Challenge Organizers"],
     "links": {
       "facebook": "https://www.facebook.com/ni.hristova",
@@ -55,7 +55,7 @@
     "boardRole": "Head of Marketing",
     "isBoard": true,
     "isHead": false,
-    "position": "Head of Marketing & Member of Video and PR",
+    "position": "Head of Marketing",
     "departments": ["Board", "Marketing", "Video", "Sponsorship"],
     "links": {
       "facebook": "https://www.facebook.com/gergana.bangeeva?locale=bg_BG",
@@ -87,7 +87,7 @@
     "boardRole": "",
     "isBoard": false,
     "isHead": true,
-    "position": "Co-Head of Challenge Organizers & Member of Sponsorship",
+    "position": "Co-Head of Challenge Organizers",
     "departments": ["Challenge Organizers", "Sponsorship"],
     "links": {
       "facebook": "https://www.facebook.com/stefan.tosunov",
