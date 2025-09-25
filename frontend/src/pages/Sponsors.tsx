@@ -114,7 +114,7 @@ const SponsorsPage: React.FC = () => {
                   className="group block w-full"
                   aria-label={`Visit ${s.name}`}
                 >
-                  <div className="flex items-center justify-center bg-white/5 hover:bg-white/10 transition rounded-xl p-5 md:p-6 ring-1 ring-white/10 hover:ring-white/20">
+                  <div className="flex items-center justify-center bg-white/20 hover:bg-white/10 transition rounded-xl p-5 md:p-6 ring-1 ring-white/10 hover:ring-white/20">
                     <CloudinaryImg
                       src={s.logo}
                       alt={s.name}
