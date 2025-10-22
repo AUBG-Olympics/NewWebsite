@@ -1,0 +1,12 @@
+fastapi
+requests
+uvicorn
+authlib
+sqlalchemy
+pydantic
+passlib[bcrypt]
+python-jose
+python-dotenv
+python-multipart
+httpx
+itsdangerous
