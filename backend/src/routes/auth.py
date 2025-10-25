@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from starlette.responses import RedirectResponse
 from src.util.auth import google
+from src.util.permissions import ADMINS
 from src.db.database import SessionLocal
 from src.db.models.user import User
 from fastapi.responses import JSONResponse
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/api/auth", tags=["Auth"])
 @router.get("/login")
 async def login_via_google(request: Request):
     redirect_uri = request.url_for('auth_callback')
+    print(f"DEBUG: Redirect URI: {redirect_uri}")
     return await google.authorize_redirect(request, redirect_uri)
 
 @router.get("/callback")
@@ -27,6 +29,8 @@ async def auth_callback(request: Request):
             picture=user_info.get('picture'),
             role="user"  # default role
         )
+        if user.email in ADMINS:
+            user.role="admin"
         db.add(user)
         db.commit()
         db.refresh(user)

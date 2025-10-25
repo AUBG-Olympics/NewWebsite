@@ -10,7 +10,7 @@ case "$choice" in
     ;;
   "Start Backend")
     cd backend
-	python main.py
+	python -m src.entry
     ;;
   "Start Both (Docker Compose)")
     docker-compose up
