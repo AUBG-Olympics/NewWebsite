@@ -1,6 +1,7 @@
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from fastapi import Depends, HTTPException, status, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from src.util.jwt import decode_access_token
 
@@ -17,23 +18,20 @@ google = oauth.register(
     }
 )
 
-def get_current_user(token: str = None, request: Request = None):
-    # Accept token from Authorization header or cookie
-    if not token:
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split(" ")[1]
-        else:
-            raise HTTPException(status_code=401, detail="Not authenticated")
+security = HTTPBearer(auto_error=False)
 
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+    token = credentials.credentials
     payload = decode_access_token(token)
     if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
 
-    return payload  # payload contains "sub" (email) and "role"
-
+    return payload
 
 def admin_required(user: dict = Depends(get_current_user)):
     if user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
     return user

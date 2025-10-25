@@ -6,6 +6,7 @@ from typing import List
 from src.db import SessionLocal
 from src.db.models.sponsor import Sponsor
 from src.db.schemas import SponsorCreate, SponsorResponse
+from src.util.auth import admin_required
 
 router = APIRouter(prefix="/sponsors", tags=["Sponsors"])
 
@@ -18,20 +19,6 @@ def get_db():
         db.close()
 
 
-def require_authenticated(request: Request):
-    """
-    Dependency that ensures the user is authenticated via the cookie set by Google OAuth.
-    Raises 401 if not authenticated.
-    Returns the user_email for convenience.
-    """
-    user_email = request.cookies.get("user_email")
-    if not user_email:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated. Please log in via Google.",
-        )
-    return user_email
-
 
 @router.get("/", response_model=List[SponsorResponse])
 def get_sponsors(db: Session = Depends(get_db)):
@@ -43,7 +30,7 @@ def get_sponsors(db: Session = Depends(get_db)):
 def create_sponsor(
     sponsor: SponsorCreate,
     db: Session = Depends(get_db),
-    user_email: str = Depends(require_authenticated),
+    user: str = Depends(admin_required),
 ):
     """Protected: create a sponsor (requires Google login cookie)"""
     new_sponsor = Sponsor(**sponsor.dict())
@@ -58,7 +45,7 @@ def update_sponsor(
     sponsor_id: int,
     updated: SponsorCreate,
     db: Session = Depends(get_db),
-    user_email: str = Depends(require_authenticated),
+    user: str = Depends(admin_required),
 ):
     """Protected: update an existing sponsor"""
     sponsor = db.query(Sponsor).filter(Sponsor.id == sponsor_id).first()
@@ -76,7 +63,7 @@ def update_sponsor(
 def delete_sponsor(
     sponsor_id: int,
     db: Session = Depends(get_db),
-    user_email: str = Depends(require_authenticated),
+    user: str = Depends(admin_required),
 ):
     """Protected: delete a sponsor"""
     sponsor = db.query(Sponsor).filter(Sponsor.id == sponsor_id).first()

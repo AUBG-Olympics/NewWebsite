@@ -11,7 +11,7 @@ class UserBase(BaseModel):
 # ----- Sponsor Schemas -----
 class SponsorBase(BaseModel):
     name: str
-    description: str | None = None
+    website: str | None = None
     logo: str | None = None
 
 class SponsorCreate(SponsorBase):
