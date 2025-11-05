@@ -34,6 +34,17 @@ async def auth_callback(request: Request):
         db.add(user)
         db.commit()
         db.refresh(user)
+    else:
+        # Update user info and check admin status for existing users
+        user.name = user_info['name']
+        user.picture = user_info.get('picture')
+        # Update role based on ADMINS list
+        if user.email in ADMINS:
+            user.role = "admin"
+        else:
+            user.role = "user"
+        db.commit()
+        db.refresh(user)
 
     # Create JWT
     access_token = create_access_token({"sub": user.email, "role": user.role})
