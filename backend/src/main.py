@@ -1,12 +1,13 @@
 import os
+
 from fastapi import FastAPI
-from fastapi.security import HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 from starlette.middleware.sessions import SessionMiddleware
 
 from src.db.database import Base, engine
 from src.db.models import user  # ensure models are imported before create_all
-from src.routes import auth, sponsors
+from src.routes import auth, events, forms, sponsors
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -30,4 +31,5 @@ app.add_middleware(
 # Routers
 app.include_router(auth.router)
 app.include_router(sponsors.router)
-
+app.include_router(events.router)
+app.include_router(forms.router)
