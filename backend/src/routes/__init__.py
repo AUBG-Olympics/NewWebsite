@@ -1,1 +1,1 @@
-from src.routes import auth, sponsors
+from src.routes import auth, events, forms, sponsors
