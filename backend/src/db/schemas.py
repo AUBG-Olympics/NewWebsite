@@ -37,6 +37,8 @@ class EventBase(BaseModel):
     description: Optional[str] = None
     date: Optional[datetype] = None
     is_current: bool = False
+    gender: Optional[str] = None
+    teammates: Optional[int] = None
 
 
 class EventCreate(EventBase):

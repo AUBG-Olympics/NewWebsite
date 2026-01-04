@@ -12,6 +12,8 @@ class Event(Base):
     description = Column(String)
     date = Column(Date)
     is_current = Column(Boolean, default=False)
+    gender = Column(String, nullable=True)
+    teammates = Column(Integer, nullable=True)
 
     # Relationship to submissions
     submissions = relationship("FormSubmission", back_populates="event")

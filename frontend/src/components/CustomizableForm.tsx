@@ -7,6 +7,8 @@ type GenderSelection = "female" | "male";
 export interface CustomizableFormProps {
   teammates?: number;
   gender?: GenderMode;
+  eventId: number;
+  sport: string;
   onSubmit?: (payload: {
     name: string;
     email: string;
@@ -17,12 +19,16 @@ export interface CustomizableFormProps {
   }) => void;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+
 const fieldStyles =
   "w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition";
 
 const CustomizableForm: React.FC<CustomizableFormProps> = ({
   teammates = 0,
   gender = "both",
+  eventId,
+  sport,
   onSubmit,
 }) => {
   const sanitizedTeammates = useMemo(
@@ -39,6 +45,11 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     email: "",
     phone: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
 
   useEffect(() => {
     setTeammateNames((prev) => {
@@ -67,14 +78,69 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     });
   };
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    onSubmit?.({
-      ...formValues,
-      genderMode: gender,
-      genderSelection: gender === "single" ? selectedGender : undefined,
-      teammates: sanitizedTeammates ? teammateNames : undefined,
-    });
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
+
+    try {
+      // Map frontend data to backend schema format
+      const genderValue = gender === "single" ? selectedGender : "both";
+      const teammatesString = sanitizedTeammates > 0 && teammateNames.length > 0
+        ? teammateNames.filter(name => name.trim() !== "").join(", ")
+        : null;
+
+      const payload = {
+        event_id: eventId,
+        sport: sport,
+        gender: genderValue,
+        name: formValues.name,
+        phone_number: formValues.phone,
+        email: formValues.email,
+        teammates: teammatesString,
+      };
+
+      // Call custom onSubmit handler if provided
+      if (onSubmit) {
+        onSubmit({
+          ...formValues,
+          genderMode: gender,
+          genderSelection: gender === "single" ? selectedGender : undefined,
+          teammates: sanitizedTeammates ? teammateNames : undefined,
+        });
+      }
+
+      // Submit to backend API
+      const response = await fetch(`${API_BASE_URL}/api/forms/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: "Failed to submit form" }));
+        throw new Error(errorData.detail || `Server error: ${response.status}`);
+      }
+
+      await response.json();
+      setSubmitStatus({
+        type: "success",
+        message: "Form submitted successfully! We'll be in touch soon.",
+      });
+
+      // Reset form after successful submission
+      setFormValues({ name: "", email: "", phone: "" });
+      setTeammateNames(Array.from({ length: sanitizedTeammates }, () => ""));
+    } catch (error) {
+      setSubmitStatus({
+        type: "error",
+        message: error instanceof Error ? error.message : "Failed to submit form. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -201,11 +267,28 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           </div>
         )}
 
+        {submitStatus.type && (
+          <div
+            className={`w-full px-4 py-3 rounded-xl border-2 ${
+              submitStatus.type === "success"
+                ? "bg-green-100 border-green-400 text-green-800"
+                : "bg-red-100 border-red-400 text-red-800"
+            }`}
+          >
+            <p className="text-sm font-semibold">{submitStatus.message}</p>
+          </div>
+        )}
+
         <button
           type="submit"
-          className="w-full px-6 py-4 bg-yellow-400 text-blue-900 font-bold uppercase tracking-[0.2em] rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] hover:bg-yellow-300 transition"
+          disabled={isSubmitting}
+          className={`w-full px-6 py-4 bg-yellow-400 text-blue-900 font-bold uppercase tracking-[0.2em] rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] transition ${
+            isSubmitting
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-yellow-300"
+          }`}
         >
-          Submit
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
     </section>
