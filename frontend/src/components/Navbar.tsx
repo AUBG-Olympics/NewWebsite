@@ -49,15 +49,9 @@ const Navbar: React.FC = () => {
               </NavLink>
             </li>
             <li>
-              {/* External link with same hover animation */}
-              <a
-                href="https://example.com/challenging-wednesday"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={navLinkClass(false)}
-              >
+              <NavLink to="/challenge" className={({ isActive }) => navLinkClass(isActive)}>
                 Challenging Wednesday
-              </a>
+              </NavLink>
             </li>
           </ul>
         </div>
@@ -116,15 +110,15 @@ const Navbar: React.FC = () => {
               </NavLink>
             </li>
             <li>
-              <a
-                href="https://example.com/challenging-wednesday"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${navLinkClass(false)} inline-block text-blue-500`}
+              <NavLink
+                to="/challenge"
                 onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `${navLinkClass(isActive)} inline-block text-blue-500`
+                }
               >
                 Challenging Wednesday
-              </a>
+              </NavLink>
             </li>
           </ul>
 
