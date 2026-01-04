@@ -6,10 +6,9 @@ import EventsSection from "../components/EventsSection";
 
 const Home: React.FC = () => (
   <section style={{ backgroundColor: "#e3772c" }}>
-   <LandingSection/>
-   <AboutUsSection/>
-  
-   <EventsSection/>
+    <LandingSection />
+    <AboutUsSection />
+    <EventsSection />
   </section>
 );
 
