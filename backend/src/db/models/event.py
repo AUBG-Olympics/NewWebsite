@@ -11,6 +11,7 @@ class Event(Base):
     name = Column(String, nullable=False)
     description = Column(String)
     date = Column(Date)
+    separated_genders = Column(Boolean, default=False)
     is_current = Column(Boolean, default=False)
 
     # Relationship to submissions

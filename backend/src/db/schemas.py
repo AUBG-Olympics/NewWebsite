@@ -36,6 +36,7 @@ class EventBase(BaseModel):
     name: str
     description: Optional[str] = None
     date: Optional[datetype] = None
+    separated_genders: bool = False
     is_current: bool = False
 
 
@@ -57,7 +58,7 @@ class FormCreate(BaseModel):
     gender: str
     name: str
     teammates: Optional[str] = None
-    phoneNumber: str = Field(validation_alias="phone_number")
+    phone_number: str
     email: str
 
     class Config:

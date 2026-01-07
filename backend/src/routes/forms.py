@@ -37,7 +37,7 @@ def submit_form(form: FormCreate, db: Session = Depends(get_db)):
         gender=form.gender,
         name=form.name,
         teammates=form.teammates,
-        phone_number=form.phoneNumber,
+        phone_number=form.phone_number,
         email=form.email,
     )
     db.add(new_entry)
