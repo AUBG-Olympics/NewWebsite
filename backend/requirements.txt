@@ -10,3 +10,7 @@ python-dotenv
 python-multipart
 httpx
 itsdangerous
+alembic
+google-api-python-client 
+google-auth 
+google-auth-oauthlib

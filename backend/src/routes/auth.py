@@ -12,7 +12,6 @@ router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 # Get frontend URL from environment or default to localhost
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-
 @router.get("/login")
 async def login_via_google(request: Request):
     redirect_uri = request.url_for('auth_callback')

@@ -7,8 +7,8 @@ type GenderSelection = "female" | "male";
 export interface CustomizableFormProps {
   teammates?: number;
   gender?: GenderMode;
-  eventId: number;
-  sport: string;
+  eventId?: number;
+  sport?: string;
   onSubmit?: (payload: {
     name: string;
     email: string;
@@ -90,15 +90,42 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
         ? teammateNames.filter(name => name.trim() !== "").join(", ")
         : null;
 
-      const payload = {
-        event_id: eventId,
-        sport: sport,
-        gender: genderValue,
-        name: formValues.name,
-        phone_number: formValues.phone,
-        email: formValues.email,
-        teammates: teammatesString,
-      };
+      // Only submit to API if eventId and sport are provided
+      if (eventId && sport) {
+        const payload = {
+          event_id: eventId,
+          sport: sport,
+          gender: genderValue,
+          name: formValues.name,
+          phone_number: formValues.phone,
+          email: formValues.email,
+          teammates: teammatesString,
+        };
+
+        // Submit to backend API
+        const response = await fetch(`${API_BASE_URL}/api/forms/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ detail: "Failed to submit form" }));
+          throw new Error(errorData.detail || `Server error: ${response.status}`);
+        }
+
+        await response.json();
+        setSubmitStatus({
+          type: "success",
+          message: "Form submitted successfully! We'll be in touch soon.",
+        });
+
+        // Reset form after successful submission
+        setFormValues({ name: "", email: "", phone: "" });
+        setTeammateNames(Array.from({ length: sanitizedTeammates }, () => ""));
+      }
 
       // Call custom onSubmit handler if provided
       if (onSubmit) {
@@ -109,30 +136,6 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           teammates: sanitizedTeammates ? teammateNames : undefined,
         });
       }
-
-      // Submit to backend API
-      const response = await fetch(`${API_BASE_URL}/api/forms/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: "Failed to submit form" }));
-        throw new Error(errorData.detail || `Server error: ${response.status}`);
-      }
-
-      await response.json();
-      setSubmitStatus({
-        type: "success",
-        message: "Form submitted successfully! We'll be in touch soon.",
-      });
-
-      // Reset form after successful submission
-      setFormValues({ name: "", email: "", phone: "" });
-      setTeammateNames(Array.from({ length: sanitizedTeammates }, () => ""));
     } catch (error) {
       setSubmitStatus({
         type: "error",

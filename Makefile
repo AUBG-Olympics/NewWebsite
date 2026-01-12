@@ -1,4 +1,7 @@
 # Development commands
+gum:
+	./scripts/gum-menu.sh
+
 start-frontend:
 	cd frontend && pnpm dev
 
@@ -18,9 +21,5 @@ build-backend:
 	cd backend && pip install -r requirements.txt
 
 build-all: build-frontend build-backend
-
-# Utility commands
-gum:
-	./scripts/gum-menu.sh
 
 .PHONY: start-frontend start-backend start-all build-frontend build-backend build-all gum

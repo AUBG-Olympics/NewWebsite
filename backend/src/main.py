@@ -6,11 +6,13 @@ from fastapi.security import HTTPBearer
 from starlette.middleware.sessions import SessionMiddleware
 
 from src.db.database import Base, engine
+
+# Migrate DB
+from src.db.migrations import run_migrations
 from src.db.models import user  # ensure models are imported before create_all
 from src.routes import auth, events, forms, sponsors
 
-# Create DB tables
-Base.metadata.create_all(bind=engine)
+run_migrations()
 
 app = FastAPI(title="Olympics API", version="1.0")
 
