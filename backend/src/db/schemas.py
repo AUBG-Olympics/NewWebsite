@@ -1,7 +1,7 @@
 from datetime import date as datetype
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class UserBase(BaseModel):
@@ -40,6 +40,14 @@ class EventBase(BaseModel):
     is_current: bool = False
     gender: Optional[str] = None
     teammates: Optional[int] = None
+    
+    @field_validator('separated_genders', mode='before')
+    @classmethod
+    def handle_none_separated_genders(cls, v):
+        """Convert None to False for separated_genders field"""
+        if v is None:
+            return False
+        return v
 
 
 class EventCreate(EventBase):

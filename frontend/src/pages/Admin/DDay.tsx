@@ -190,9 +190,8 @@ const DDay: React.FC = () => {
                     }
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
                   >
-                    <option value="both">Both</option>
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
+                    <option value="together">Together</option>
+                    <option value="seperate">Seperate</option>
                   </select>
                 </div>
                 <div>
@@ -200,8 +199,7 @@ const DDay: React.FC = () => {
                     Number of Teammates
                   </label>
                   <input
-                    type="number"
-                    min="0"
+                    type="text"
                     value={editingChallenge.teammates || 0}
                     onChange={(e) =>
                       setEditingChallenge({

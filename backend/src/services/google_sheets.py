@@ -158,6 +158,17 @@ class GoogleSheetsService:
         except HttpError as e:
             self._handle_http_error(e, "Add sheet")
 
+    def get_sheet_names(self, spreadsheet_id: str) -> List[str]:
+        """Get list of all sheet names in the spreadsheet."""
+        try:
+            spreadsheet = self._sheets.spreadsheets().get(
+                spreadsheetId=spreadsheet_id,
+                fields="sheets(properties(title))",
+            ).execute()
+            return [s["properties"]["title"] for s in spreadsheet.get("sheets", [])]
+        except HttpError as e:
+            self._handle_http_error(e, "Get sheet names")
+
     def write_to_sheet(
         self,
         spreadsheet_id: str,
