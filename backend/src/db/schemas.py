@@ -65,7 +65,7 @@ class EventResponse(EventBase):
 class FormCreate(BaseModel):
     event_id: int
     sport: str
-    gender: str
+    gender: Optional[str] = None
     name: str
     teammates: Optional[str] = None
     phone_number: str

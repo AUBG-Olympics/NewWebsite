@@ -1,4 +1,5 @@
 from typing import List, Optional
+import logging
 
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
@@ -7,12 +8,15 @@ from googleapiclient.errors import HttpError
 from starlette.config import Config
 
 from src.util.google_exceptions import (
-    GoogleSheetsError,
     GoogleAuthError,
     GooglePermissionError,
     GoogleNotFoundError,
     GoogleApiError,
+    SheetsStatusCodes,
 )
+
+logger = logging.getLogger(__name__)
+
 
 class GoogleSheetsService:
     SCOPES = [
@@ -49,13 +53,9 @@ class GoogleSheetsService:
         error = e.error_details if hasattr(e, "error_details") else str(e)
 
         if status in (401, 403):
-            raise GooglePermissionError(
-                f"{context}: permission denied"
-            ) from e
+            raise GooglePermissionError(f"{context}: permission denied") from e
         elif status == 404:
-            raise GoogleNotFoundError(
-                f"{context}: resource not found"
-            ) from e
+            raise GoogleNotFoundError(f"{context}: resource not found") from e
         else:
             raise GoogleApiError(
                 f"{context}: Google API error ({status}) → {error}"
@@ -87,26 +87,33 @@ class GoogleSheetsService:
                 f"and '{folder_id}' in parents "
                 f"and trashed = false"
             )
-            res = self._drive.files().list(
-
-                q=query,
-                fields="files(id, name)",
-                pageSize=1,
-            ).execute()
+            res = (
+                self._drive.files()
+                .list(
+                    q=query,
+                    fields="files(id, name)",
+                    pageSize=1,
+                )
+                .execute()
+            )
 
             files = res.get("files", [])
             if files:
                 return files[0]["id"]
 
             # Create spreadsheet
-            file = self._drive.files().create(
-                body={
-                    "name": title,
-                    "mimeType": "application/vnd.google-apps.spreadsheet",
-                    "parents": [self.config("GOOGLE_EXPORT_FOLDER_ID")],
-                },
-                fields="id",
-            ).execute()
+            file = (
+                self._drive.files()
+                .create(
+                    body={
+                        "name": title,
+                        "mimeType": "application/vnd.google-apps.spreadsheet",
+                        "parents": [self.config("GOOGLE_EXPORT_FOLDER_ID")],
+                    },
+                    fields="id",
+                )
+                .execute()
+            )
 
             spreadsheet_id = file["id"]
 
@@ -128,53 +135,76 @@ class GoogleSheetsService:
         self,
         spreadsheet_id: str,
         sheet_name: str,
-    ):
+    ) -> SheetsStatusCodes:
         """
         Add a new tab to an existing spreadsheet.
         Does nothing if the tab already exists.
         """
         try:
-            spreadsheet = self._sheets.spreadsheets().get(
-                spreadsheetId=spreadsheet_id,
-                fields="sheets(properties(title))",
-            ).execute()
+            spreadsheet = (
+                self._sheets.spreadsheets()
+                .get(
+                    spreadsheetId=spreadsheet_id,
+                    fields="sheets(properties(title))",
+                )
+                .execute()
+            )
 
-            existing = {
-                s["properties"]["title"]
-                for s in spreadsheet.get("sheets", [])
-            }
+            existing = {s["properties"]["title"] for s in spreadsheet.get("sheets", [])}
 
             if sheet_name in existing:
-                return
+                logger.debug(f"Sheet '{sheet_name}' already exists, will write to it")
+                return SheetsStatusCodes.SHEET_ALREADY_EXISTS
 
             self._sheets.spreadsheets().batchUpdate(
                 spreadsheetId=spreadsheet_id,
                 body={
-                    "requests": [
-                        {"addSheet": {"properties": {"title": sheet_name}}}
-                    ]
+                    "requests": [{"addSheet": {"properties": {"title": sheet_name}}}]
                 },
             ).execute()
         except HttpError as e:
             self._handle_http_error(e, "Add sheet")
+        return SheetsStatusCodes.SUCCESS
 
     def get_sheet_names(self, spreadsheet_id: str) -> List[str]:
         """Get list of all sheet names in the spreadsheet."""
         try:
-            spreadsheet = self._sheets.spreadsheets().get(
-                spreadsheetId=spreadsheet_id,
-                fields="sheets(properties(title))",
-            ).execute()
+            spreadsheet = (
+                self._sheets.spreadsheets()
+                .get(
+                    spreadsheetId=spreadsheet_id,
+                    fields="sheets(properties(title))",
+                )
+                .execute()
+            )
             return [s["properties"]["title"] for s in spreadsheet.get("sheets", [])]
         except HttpError as e:
             self._handle_http_error(e, "Get sheet names")
+
+    def append_to_sheet(
+        self, spreadsheet_id: str, sheet_name: str, values: List[List]
+    ) -> SheetsStatusCodes:
+        try:
+            self.add_sheet(spreadsheet_id, sheet_name)
+
+            self._sheets.spreadsheets().values().append(
+                spreadsheetId=spreadsheet_id,
+                range=sheet_name,
+                insertDataOption="INSERT_ROWS",
+                valueInputOption="RAW",
+                body={"values": values},
+            ).execute()
+            return SheetsStatusCodes.SUCCESS
+
+        except HttpError as e:
+            self._handle_http_error(e, "Write sheet")
 
     def write_to_sheet(
         self,
         spreadsheet_id: str,
         sheet_name: str,
         values: List[List],
-    ):
+    ) -> SheetsStatusCodes:
         try:
             self.add_sheet(spreadsheet_id, sheet_name)
 
@@ -184,6 +214,7 @@ class GoogleSheetsService:
                 valueInputOption="RAW",
                 body={"values": values},
             ).execute()
+            return SheetsStatusCodes.SUCCESS
 
         except HttpError as e:
             self._handle_http_error(e, "Write sheet")
@@ -193,7 +224,7 @@ class GoogleSheetsService:
         spreadsheet_id: str,
         old_name: str,
         new_name: str,
-    ):
+    ) -> SheetsStatusCodes:
         """
         Renames a sheet tab.
         - Idempotent if old_name == new_name
@@ -201,13 +232,17 @@ class GoogleSheetsService:
         - Fails if target name already exists
         """
         if old_name == new_name:
-            return
+            return SheetsStatusCodes.NEW_NAME_SAME_AS_OLD
 
         try:
-            spreadsheet = self._sheets.spreadsheets().get(
-                spreadsheetId=spreadsheet_id,
-                fields="sheets(properties(sheetId,title))",
-            ).execute()
+            spreadsheet = (
+                self._sheets.spreadsheets()
+                .get(
+                    spreadsheetId=spreadsheet_id,
+                    fields="sheets(properties(sheetId,title))",
+                )
+                .execute()
+            )
 
             sheets = spreadsheet.get("sheets", [])
 
@@ -222,14 +257,10 @@ class GoogleSheetsService:
                     sheet_id = sheet["properties"]["sheetId"]
 
             if sheet_id is None:
-                raise GoogleNotFoundError(
-                    f"Sheet '{old_name}' does not exist"
-                )
+                return SheetsStatusCodes.SHEET_NOT_FOUND
 
             if new_name in existing_titles:
-                raise GoogleApiError(
-                    f"Sheet '{new_name}' already exists"
-                )
+                return SheetsStatusCodes.SHEET_ALREADY_EXISTS
 
             self._sheets.spreadsheets().batchUpdate(
                 spreadsheetId=spreadsheet_id,
@@ -247,10 +278,10 @@ class GoogleSheetsService:
                     ]
                 },
             ).execute()
+            return SheetsStatusCodes.SUCCESS
 
         except HttpError as e:
             self._handle_http_error(e, "Rename sheet")
-
 
     # ======================================================
     # Permissions (Drive API)
