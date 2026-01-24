@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class GoogleSheetsService:
     SCOPES = [
         "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.file",
     ]
 
     def __init__(self):
@@ -39,8 +39,8 @@ class GoogleSheetsService:
             if not self._creds.valid:
                 self._creds.refresh(Request())
 
-                self._sheets = build("sheets", "v4", credentials=self._creds)
-                self._drive = build("drive", "v3", credentials=self._creds)
+            self._sheets = build("sheets", "v4", credentials=self._creds)
+            self._drive = build("drive", "v3", credentials=self._creds)
 
         except Exception as e:
             raise GoogleAuthError("Failed to initialize Google credentials") from e

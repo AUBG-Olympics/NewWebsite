@@ -38,10 +38,9 @@ class EventBase(BaseModel):
     date: Optional[datetype] = None
     separated_genders: bool = False
     is_current: bool = False
-    gender: Optional[str] = None
     teammates: Optional[int] = None
-    
-    @field_validator('separated_genders', mode='before')
+
+    @field_validator("separated_genders", mode="before")
     @classmethod
     def handle_none_separated_genders(cls, v):
         """Convert None to False for separated_genders field"""

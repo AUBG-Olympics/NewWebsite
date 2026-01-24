@@ -2,7 +2,7 @@ from json.encoder import encode_basestring
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from src.db import SessionLocal
@@ -51,7 +51,7 @@ def export_single_registration(
     # Create / reuse spreadsheet for the event (and sport if specified)
     spreadsheet_title = f"Registrations – {event.name}"
     if sport:
-        spreadsheet_title = f"Registrations – {event.name} – {sport}"
+        spreadsheet_title = spreadsheet_title + f" – {sport}"
 
     logger.info(f"Creating/finding spreadsheet: {spreadsheet_title}")
     try:
@@ -132,6 +132,37 @@ def export_single_registration(
     ]
     sheets.append_to_sheet(spreadsheet_id, sheet_name, values)
     logger.info("Export Successful")
+
+
+def export_single_registration_bg(
+    submission_id: int,
+    event_id: int,
+    sport: Optional[str] = None,
+):
+    db = SessionLocal()
+    try:
+        sheets = GoogleSheetsService()
+
+        entity = (
+            db.query(FormSubmission).filter(FormSubmission.id == submission_id).first()
+        )
+
+        if not entity:
+            logger.warning(f"Submission {submission_id} not found")
+            return
+
+        export_single_registration(
+            entity=entity,
+            event_id=event_id,
+            db=db,
+            sheets=sheets,
+            sport=sport,
+        )
+
+    except Exception:
+        logger.exception("Background export failed")
+    finally:
+        db.close()
 
 
 def export_event_to_sheets(
@@ -333,6 +364,7 @@ def export_event_to_sheets(
 @router.post("/", response_model=FormResponse)
 def submit_form(
     form: FormCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     sheets: GoogleSheetsService = Depends(get_google_sheets_service),
 ):
@@ -363,7 +395,14 @@ def submit_form(
     logger.info(f"Form submission saved successfully with ID {new_entry.id}")
 
     try:
-        export_single_registration(new_entry, event.id, db, sheets, form.sport)
+
+        background_tasks.add_task(
+            export_single_registration_bg,
+            submission_id=new_entry.id,
+            event_id=event.id,
+            sport=form.sport,
+        )
+
         logger.info("Successfully created entry and exported it to the Google Sheet")
 
     except Exception as e:

@@ -6,19 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from starlette.middleware.sessions import SessionMiddleware
 
+# Migrate DB
+from src.db.migrations import run_migrations
+from src.routes import auth, events, forms, sponsors, google_sheets_auth
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-from src.db.database import Base, engine
-
-# Migrate DB
-from src.db.migrations import run_migrations
-from src.db.models import user  # ensure models are imported before create_all
-from src.routes import auth, events, forms, sponsors
 
 run_migrations()
 
@@ -43,3 +41,4 @@ app.include_router(auth.router)
 app.include_router(sponsors.router)
 app.include_router(events.router)
 app.include_router(forms.router)
+app.include_router(google_sheets_auth.router)
