@@ -41,4 +41,5 @@ app.include_router(auth.router)
 app.include_router(sponsors.router)
 app.include_router(events.router)
 app.include_router(forms.router)
-app.include_router(google_sheets_auth.router)
+# Enable ONLY if the Refresh token in the .env file is revoked
+# app.include_router(google_sheets_auth.router)
