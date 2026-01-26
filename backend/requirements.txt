@@ -3,7 +3,7 @@ requests
 uvicorn
 authlib
 sqlalchemy
-pydantic
+pydantic[email]
 passlib[bcrypt]
 python-jose
 python-dotenv
@@ -11,6 +11,6 @@ python-multipart
 httpx
 itsdangerous
 alembic
-google-api-python-client 
-google-auth 
+google-api-python-client
+google-auth
 google-auth-oauthlib
