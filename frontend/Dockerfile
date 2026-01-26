@@ -6,4 +6,4 @@ ENV CI=true
 RUN pnpm install
 RUN pnpm build
 EXPOSE 5173
-CMD ["pnpm", "dev", "--host"]
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]

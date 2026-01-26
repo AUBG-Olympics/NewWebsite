@@ -75,7 +75,7 @@ def export_single_registration(
                 sheet_name = s
                 break
         if sheet_name == "":
-            sheet_name = f"{"Male" if entity.gender.lower() in ("male", "man") else "Female"} {sport if sport else "Participants"}"
+            sheet_name = f"{'Male' if entity.gender.lower() in ('male', 'man') else 'Female'} {sport if sport else 'Participants'}"
 
             try:
                 res = sheets.rename_sheet(
@@ -110,12 +110,12 @@ def export_single_registration(
         res = sheets.rename_sheet(
             spreadsheet_id, old_name="Sheet1", new_name=sheet_name
         )
+        if res != ssc.SHEET_ALREADY_EXISTS and res != ssc.SUCCESS:
+            res = sheets.add_sheet(spreadsheet_id, sheet_name)
+        elif res == ssc.SUCCESS:
+            headers = [["Name", "Sport", "Teammates", "Phone", "Email"]]
 
-        if res == ssc.SHEET_NOT_FOUND:
-            sheets.add_sheet(spreadsheet_id, sheet_name)
-        headers = [["Name", "Sport", "Gender", "Teammates", "Phone", "Email"]]
-
-        sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
+            sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
     except Exception as e:
         logger.error(f"Error while trying to export: {str(e)}")
         return
@@ -124,7 +124,6 @@ def export_single_registration(
         [
             entity.name,
             entity.sport,
-            entity.gender,
             entity.teammates,
             entity.phone_number,
             entity.email,

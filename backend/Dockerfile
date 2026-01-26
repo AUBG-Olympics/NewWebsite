@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 4000
 
 # Run exactly what gum-menu runs
-CMD ["python", "-m", "src.entry"]
+CMD ["uvicorn", "src.entry:app", "--host", "0.0.0.0", "--port", "4000", "--reload"]

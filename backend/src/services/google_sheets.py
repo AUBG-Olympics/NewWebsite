@@ -256,11 +256,11 @@ class GoogleSheetsService:
                 if title == old_name:
                     sheet_id = sheet["properties"]["sheetId"]
 
-            if sheet_id is None:
-                return SheetsStatusCodes.SHEET_NOT_FOUND
-
             if new_name in existing_titles:
                 return SheetsStatusCodes.SHEET_ALREADY_EXISTS
+
+            if sheet_id is None:
+                return SheetsStatusCodes.SHEET_NOT_FOUND
 
             self._sheets.spreadsheets().batchUpdate(
                 spreadsheetId=spreadsheet_id,
