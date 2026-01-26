@@ -8,7 +8,7 @@ interface Event {
   description?: string;
   date?: string;
   is_current: boolean;
-  gender?: string;
+  separated_genders?: boolean;
   teammates?: number;
 }
 
@@ -42,7 +42,7 @@ const ChallengingWednesday: React.FC = () => {
           name: "Challenging Wednesday",
           description: "",
           is_current: false,
-          gender: "both",
+          separated_genders: false,
           teammates: 0,
         });
         setEnabled(false);
@@ -60,67 +60,38 @@ const ChallengingWednesday: React.FC = () => {
     setMessage(null);
 
     try {
-      if (enabled) {
-        // Enable - create or update event and set as current
-        const eventData = {
-          name: event?.name || "Challenging Wednesday",
-          description: event?.description || "",
-          date: event?.date || null,
-          is_current: true,
-          gender: event?.gender || "both",
-          teammates: event?.teammates || 0,
-        };
+      const eventData = {
+        name: event?.name || "Challenging Wednesday",
+        description: event?.description || "",
+        date: event?.date || null,
+        separated_genders: event?.separated_genders || false,
+        teammates: event?.teammates || 0,
+        is_current: true,
+      };
 
-        let response;
-        if (event?.id) {
-          // Update existing event
-          response = await fetch(`${API_BASE_URL}/api/events/${event.id}`, {
-            method: "PUT",
-            headers: getAuthHeaders(),
-            body: JSON.stringify(eventData),
-          });
-        } else {
-          // Create new event
-          response = await fetch(`${API_BASE_URL}/api/events/`, {
-            method: "POST",
-            headers: getAuthHeaders(),
-            body: JSON.stringify(eventData),
-          });
-        }
-
-        if (!response.ok) throw new Error("Failed to save event");
-
-        const savedEvent: Event = await response.json();
-        // Set as current event
-        await fetch(`${API_BASE_URL}/api/events/${savedEvent.id}/set-current`, {
+      let response;
+      if (event?.id) {
+        // Update existing event
+        response = await fetch(`${API_BASE_URL}/api/events/${event.id}`, {
           method: "PUT",
           headers: getAuthHeaders(),
+          body: JSON.stringify(eventData),
         });
-
-        setMessage({ type: "success", text: "Settings saved successfully!" });
-        await fetchEvent();
       } else {
-        // Disable - unset current event by setting another event as current or clearing
-        if (event?.id) {
-          // Fetch all events and set a different one as current, or just leave none
-          const eventsResponse = await fetch(`${API_BASE_URL}/api/events/`, {
-            headers: getAuthHeaders(),
-          });
-          if (eventsResponse.ok) {
-            const allEvents: Event[] = await eventsResponse.json();
-            const otherEvent = allEvents.find((e) => e.id !== event.id && !e.is_current);
-            if (otherEvent) {
-              await fetch(`${API_BASE_URL}/api/events/${otherEvent.id}/set-current`, {
-                method: "PUT",
-                headers: getAuthHeaders(),
-              });
-            }
-          }
-        }
-        setMessage({ type: "success", text: "Challenging Wednesday disabled" });
-        await fetchEvent();
+        // Create new event
+        response = await fetch(`${API_BASE_URL}/api/events/`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(eventData),
+        });
       }
-    } catch (error) {
+
+      if (!response.ok) throw new Error("Failed to save event");
+
+      setMessage({ type: "success", text: "Settings saved successfully!" });
+      await fetchEvent();
+    } catch (e) {
+      console.error("Error saving event:", e);
       setMessage({ type: "error", text: "Failed to save settings" });
     } finally {
       setSaving(false);
@@ -140,7 +111,7 @@ const ChallengingWednesday: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <button
           onClick={() => navigate("/admin")}
-          className="mb-6 text-blue-700 hover:text-blue-900 font-semibold"
+          className="mb-6 px-4 py-2 bg-white text-blue-900 rounded-lg hover:bg-blue-50 hover:text-blue-700 font-semibold flex items-center gap-2 transition-colors"
           style={{ fontFamily: "'Lato', sans-serif" }}
         >
           ← Back to Admin Panel
@@ -227,16 +198,18 @@ const ChallengingWednesday: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">
-                    Gender Mode *
+                    Separate Genders *
                   </label>
-                  <select
-                    value={event?.gender || "together"}
-                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", teammates: 0 }), gender: e.target.value })}
-                    className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
-                  >
-                    <option value="together">Together</option>
-                    <option value="seperate">Seperate</option>
-                  </select>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={event?.separated_genders || false}
+                      onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, separated_genders: false, teammates: 0 }), separated_genders: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500"></div>
+                    <span className="ml-4 text-sm font-semibold text-blue-900">{event?.separated_genders ? "Separated" : "Together"}</span>
+                  </label>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">

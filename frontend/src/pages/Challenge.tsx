@@ -9,7 +9,7 @@ interface Event {
   description?: string;
   date?: string;
   is_current: boolean;
-  gender?: string;
+  separated_genders?: boolean;
   teammates?: number;
 }
 
@@ -45,14 +45,6 @@ const ChallengePage: React.FC = () => {
     fetchCurrentEvent();
   }, []);
 
-  // Map event gender to form gender mode
-  // "together" -> "both", "seperate" -> "single"
-  const getGenderMode = (eventGender?: string): "both" | "single" => {
-    if (eventGender === "seperate") {
-      return "single";
-    }
-    return "both"; // Default to "both" for "together" or undefined
-  };
 
   if (loading) {
     return (
@@ -76,27 +68,12 @@ const ChallengePage: React.FC = () => {
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#e3772c] via-orange-200 to-orange-100">
-      {/* <div className="max-w-4xl mx-auto px-4 pt-24 pb-12 text-center text-blue-900">
-      <p className="text-sm uppercase tracking-[0.4em] text-blue-700 mb-2">
-        Challenging Wednesday
-      </p>
-      <h1
-        className="text-4xl md:text-5xl mb-4"
-        style={{ fontFamily: "'Permanent Marker', cursive" }}
-      >
-        Ready for the Challenge?
-      </h1>
-      <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ fontFamily: "'Lato', sans-serif" }}>
-        Sign up below to confirm your participation. Customize the teammate slots and
-        gender requirements to match your competition group, then hit submit to send us
-        your info.
-      </p>
-    </div> */}
       <CustomizableForm
         teammates={event.teammates || 0}
-        gender={getGenderMode(event.gender)}
+        separated_genders={event.separated_genders}
         eventId={event.id}
         sport={event.name}
+        description={event.description || ""}
       />
     </section>
   );

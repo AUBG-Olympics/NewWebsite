@@ -1,19 +1,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
-type GenderMode = "both" | "single";
 type GenderSelection = "female" | "male";
+
+interface FormSubmissionPayload {
+  event_id: number;
+  sport: string;
+  name: string;
+  phone_number: string;
+  email: string;
+  teammates: string | null;
+  gender?:string;
+  
+}
 
 export interface CustomizableFormProps {
   teammates?: number;
-  gender?: GenderMode;
+  separated_genders?: boolean;
   eventId?: number;
   sport?: string;
+  description?:string;
   onSubmit?: (payload: {
     name: string;
     email: string;
     phone: string;
-    genderMode: GenderMode;
+    separated_genders?: boolean;
     genderSelection?: GenderSelection;
     teammates?: string[];
   }) => void;
@@ -26,9 +37,10 @@ const fieldStyles =
 
 const CustomizableForm: React.FC<CustomizableFormProps> = ({
   teammates = 0,
-  gender = "both",
+  separated_genders = false,
   eventId,
   sport,
+  description = "",
   onSubmit,
 }) => {
   const sanitizedTeammates = useMemo(
@@ -85,22 +97,26 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
     try {
       // Map frontend data to backend schema format
-      const genderValue = gender === "single" ? selectedGender : "both";
+      const genderValue = separated_genders ? selectedGender : null;
       const teammatesString = sanitizedTeammates > 0 && teammateNames.length > 0
         ? teammateNames.filter(name => name.trim() !== "").join(", ")
         : null;
 
       // Only submit to API if eventId and sport are provided
       if (eventId && sport) {
-        const payload = {
+        const payload: FormSubmissionPayload = {
           event_id: eventId,
           sport: sport,
-          gender: genderValue,
           name: formValues.name,
           phone_number: formValues.phone,
           email: formValues.email,
           teammates: teammatesString,
         };
+
+        // Only include gender if separated_genders is true
+        if (separated_genders && genderValue) {
+          payload.gender = genderValue;
+        }
 
         // Submit to backend API
         const response = await fetch(`${API_BASE_URL}/api/forms/`, {
@@ -131,8 +147,8 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
       if (onSubmit) {
         onSubmit({
           ...formValues,
-          genderMode: gender,
-          genderSelection: gender === "single" ? selectedGender : undefined,
+          separated_genders: separated_genders,
+          genderSelection: separated_genders ? selectedGender : undefined,
           teammates: sanitizedTeammates ? teammateNames : undefined,
         });
       }
@@ -147,25 +163,20 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
   };
 
   return (
-    <section className="w-full flex justify-center py-16 px-4 md:px-0 bg-gradient-to-b from-orange-100 to-orange-200">
+    <section className="w-full flex justify-center py-16 px-4 md:px-0">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-3xl bg-white/90 border-4 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-8 md:p-12 space-y-6"
         style={{ fontFamily: "'Lato', sans-serif" }}
       >
         <div className="text-center space-y-2">
-          <p className="text-sm uppercase tracking-[0.3em] text-blue-700">
-            Register Your Team
-          </p>
           <h2
-            className="text-3xl md:text-4xl text-blue-900"
-            style={{ fontFamily: "'Permanent Marker', cursive" }}
+            className="text-3xl md:text-4xl text-orange-500 font-lilita"
           >
-            Custom Signup Form
+            {sport?.toUpperCase()}
           </h2>
           <p className="text-blue-800 text-sm md:text-base max-w-xl mx-auto">
-            Fill out the quick form below to let us know who is joining. Adjust
-            teammate slots and gender requirements based on your event needs.
+            {description}
           </p>
         </div>
 
@@ -211,7 +222,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           </label>
         </div>
 
-        {gender === "single" && (
+        {separated_genders === true && (
           <div className="flex flex-col gap-3 text-blue-900">
             <span className="text-sm font-semibold tracking-wide uppercase">
               Select Gender

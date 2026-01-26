@@ -26,7 +26,11 @@ module.exports = {
             32: "8rem",
         }
     },
-    extend: {},
+    extend: {
+      fontFamily: {
+        lilita: ["'Lilita One'", "sans-serif"],
+      },
+    },
   },
   plugins: [require('tailwindcss-bg-patterns')],
 }

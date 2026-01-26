@@ -6,19 +6,21 @@ start-frontend:
 	cd frontend && pnpm dev
 
 start-backend:
-	cd backend && python -m src.entry
+	bash scripts/start-backend.sh
 
 start-all:
 	@echo "Starting frontend and backend..."
-	@cd frontend && pnpm dev & \
-	cd ../backend && python -m src.entry &
+	@trap 'kill 0' EXIT; \
+	(cd frontend && pnpm dev) & \
+	(cd backend && . ./venv/bin/activate && python3 -m src.entry) & \
+	wait
 
 # Build commands
 build-frontend:
 	cd frontend && pnpm install && pnpm build
 
 build-backend:
-	cd backend && pip install -r requirements.txt
+	bash scripts/start-backend.sh --build-only
 
 build-all: build-frontend build-backend
 

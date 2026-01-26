@@ -62,13 +62,15 @@ const Navbar: React.FC = () => {
 
         {/* Right: DDAY button (desktop unchanged) */}
         <div className="hidden md:block">
-          <FlameButton
-            className="relative"
-            animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
-            flameScale={2}
-          >
-            DDAY
-          </FlameButton>
+          <Link to="/dday">
+            <FlameButton
+              className="relative"
+              animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
+              flameScale={2}
+            >
+              DDAY
+            </FlameButton>
+          </Link>
         </div>
 
         {/* Mobile hamburger (only on < md) */}
@@ -130,13 +132,15 @@ const Navbar: React.FC = () => {
 
           {/* Mobile DDAY button */}
           <div className="pt-2">
-            <FlameButton
-              className="relative w-full justify-center"
-              animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
-              flameScale={2}
-            >
-              DDAY
-            </FlameButton>
+            <Link to="/dday" onClick={() => setOpen(false)}>
+              <FlameButton
+                className="relative w-full justify-center"
+                animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
+                flameScale={2}
+              >
+                DDAY
+              </FlameButton>
+            </Link>
           </div>
         </div>
       </div>
