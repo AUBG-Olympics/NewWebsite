@@ -7,14 +7,26 @@ services:
       - ./frontend:/app
     ports:
       - "5173:5173"
+  migrate:
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
+      command: alembic upgrade head
+      env_file:
+        - ./backend/.env
+      volumes:
+        - ./backend:/app
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - ./backend:/backend
+      - ./backend:/app
     ports:
       - "4000:4000"
     env_file:
       - ./backend/.env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully

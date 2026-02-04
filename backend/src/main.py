@@ -7,8 +7,6 @@ from fastapi.security import HTTPBearer
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import JSONResponse
 
-# Migrate DB
-from src.db.migrations import run_migrations
 from src.routes import auth, events, forms, sponsors, google_sheets_auth
 
 # Configure logging
@@ -17,9 +15,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-
-
-run_migrations()
 
 app = FastAPI(title="Olympics API", version="1.0")
 
@@ -37,11 +32,15 @@ app.add_middleware(
     secret_key=os.getenv("SESSION_SECRET", "change_this_secret_key"),
 )
 
+
 @app.exception_handler(Exception)
 async def catch_all_exceptions(request, exc):
     import traceback
+
     traceback.print_exc()  # prints the real error
     return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 # Routers
 app.include_router(auth.router)
 app.include_router(sponsors.router)
