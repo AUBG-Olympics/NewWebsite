@@ -58,6 +58,7 @@ class EventBase(BaseModel):
     separated_genders: bool = False
     is_current: bool = False
     teammates: Optional[int] = None
+    max_participants: Optional[int] = None
 
     @field_validator("separated_genders", mode="before")
     @classmethod
@@ -71,6 +72,7 @@ class EventCreate(EventBase):
     name: Annotated[str, Field(min_length=2, max_length=100)]
     description: Optional[Annotated[str, Field(max_length=500)]] = None
     teammates: Optional[Annotated[int, Field(ge=0)]] = None
+    max_participants: Optional[Annotated[int, Field(ge=0)]] = None
 
     @model_validator(mode="before")
     @classmethod

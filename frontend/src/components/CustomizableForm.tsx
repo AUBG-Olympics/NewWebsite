@@ -63,6 +63,53 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     message: string;
   }>({ type: null, message: "" });
 
+  const validateForm = (): string[] => {
+    const errors: string[] = [];
+
+    const trimmedName = formValues.name.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
+      errors.push("Name must be between 2 and 50 characters.");
+    }
+
+    const trimmedEmail = formValues.email.trim();
+    // Basic email validation to roughly match Pydantic's EmailStr
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      errors.push("Please enter a valid email address.");
+    }
+
+    // Match backend phone_number validator: 10–15 digits, ignoring other characters
+    const phoneDigits = formValues.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      errors.push("Phone number must be 10–15 digits (numbers only).");
+    }
+
+    // sport backend constraint: 2–50 chars
+    if (sport) {
+      const trimmedSport = sport.trim();
+      if (trimmedSport.length < 2 || trimmedSport.length > 50) {
+        errors.push("Sport name must be between 2 and 50 characters.");
+      }
+    }
+
+    // teammates: if provided, backend requires 1–50 chars total
+    if (sanitizedTeammates > 0 && teammateNames.length > 0) {
+      const teammatesString = teammateNames
+        .filter((name) => name.trim() !== "")
+        .join(", ");
+      if (teammatesString) {
+        if (teammatesString.length < 1 || teammatesString.length > 50) {
+          errors.push("Teammates description must be between 1 and 50 characters.");
+        }
+      }
+    }
+
+    // gender: backend allows 1–20 chars; our options ("male"/"female") already satisfy this,
+    // so no extra validation needed beyond presence when separated_genders is true.
+
+    return errors;
+  };
+
   useEffect(() => {
     setTeammateNames((prev) => {
       if (prev.length === sanitizedTeammates) return prev;
@@ -95,6 +142,16 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: "" });
 
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      setIsSubmitting(false);
+      setSubmitStatus({
+        type: "error",
+        message: validationErrors.join(" | "),
+      });
+      return;
+    }
+
     try {
       // Map frontend data to backend schema format
       const genderValue = separated_genders ? selectedGender : null;
@@ -104,6 +161,28 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
       // Only submit to API if eventId and sport are provided
       if (eventId && sport) {
+        // Re-check capacity before submit (cap may have filled while user was filling the form)
+        try {
+          const sportParam = encodeURIComponent(sport);
+          const capRes = await fetch(
+            `${API_BASE_URL}/api/forms/capacity/${eventId}?sport=${sportParam}`,
+          );
+          if (capRes.ok) {
+            const capData = await capRes.json();
+            if (capData.is_full) {
+              setIsSubmitting(false);
+              setSubmitStatus({
+                type: "error",
+                message:
+                  "The participant cap has been filled. Registration for this sport is no longer available.",
+              });
+              return;
+            }
+          }
+        } catch (_e) {
+          // Proceed with submit; backend will enforce cap
+        }
+
         const payload: FormSubmissionPayload = {
           event_id: eventId,
           sport: sport,

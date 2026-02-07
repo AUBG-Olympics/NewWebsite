@@ -2,7 +2,8 @@ from json.encoder import encode_basestring
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, Form, HTTPException, BackgroundTasks, Query
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from src.db import SessionLocal
@@ -29,6 +30,65 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@router.get("/capacity/{event_id}")
+def get_event_capacity(
+    event_id: int,
+    sport: Optional[str] = Query(None, description="Sport name (e.g. event name)"),
+    db: Session = Depends(get_db),
+):
+    """
+    Return capacity info for an event (and optional sport).
+    When separated_genders: cap is per gender (e.g. 16 men, 16 women).
+    is_full is True when no slots remain (both genders full or total full).
+    """
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    sport_key = sport or event.name
+    max_participants = event.max_participants
+
+    base = db.query(FormSubmission).filter(
+        FormSubmission.event_id == event_id,
+        FormSubmission.sport == sport_key,
+    )
+    total_count = base.count()
+
+    if event.separated_genders and max_participants is not None:
+        male_count = base.filter(
+            or_(
+                func.lower(FormSubmission.gender) == "male",
+                func.lower(FormSubmission.gender) == "man",
+            )
+        ).count()
+        female_count = base.filter(
+            or_(
+                func.lower(FormSubmission.gender) == "female",
+                func.lower(FormSubmission.gender) == "woman",
+            )
+        ).count()
+        is_full = male_count >= max_participants and female_count >= max_participants
+        return {
+            "event_id": event_id,
+            "sport": sport_key,
+            "max_participants": max_participants,
+            "current_participants": total_count,
+            "male_count": male_count,
+            "female_count": female_count,
+            "is_full": is_full,
+        }
+    if max_participants is not None:
+        is_full = total_count >= max_participants
+    else:
+        is_full = False
+    return {
+        "event_id": event_id,
+        "sport": sport_key,
+        "max_participants": max_participants,
+        "current_participants": total_count,
+        "is_full": is_full,
+    }
 
 
 def export_single_registration(
@@ -377,6 +437,42 @@ def submit_form(
     if not event:
         logger.warning(f"Event {form.event_id} not found")
         raise HTTPException(status_code=404, detail="Event not found")
+
+    # Enforce max participants cap per sport (per gender when separated_genders)
+    if event.max_participants is not None:
+        base_query = db.query(FormSubmission).filter(
+            FormSubmission.event_id == form.event_id,
+            FormSubmission.sport == form.sport,
+        )
+        if event.separated_genders and form.gender:
+            gender_lower = (form.gender or "").strip().lower()
+            if gender_lower in ("male", "man"):
+                count_query = base_query.filter(
+                    or_(
+                        func.lower(FormSubmission.gender) == "male",
+                        func.lower(FormSubmission.gender) == "man",
+                    )
+                )
+            elif gender_lower in ("female", "woman"):
+                count_query = base_query.filter(
+                    or_(
+                        func.lower(FormSubmission.gender) == "female",
+                        func.lower(FormSubmission.gender) == "woman",
+                    )
+                )
+            else:
+                count_query = base_query.filter(FormSubmission.gender == form.gender)
+            current_count = count_query.count()
+        else:
+            current_count = base_query.count()
+        if current_count >= event.max_participants:
+            logger.info(
+                f"Event {form.event_id} sport {form.sport} reached max participants ({event.max_participants})."
+            )
+            raise HTTPException(
+                status_code=400,
+                detail="Registration for this sport is full. The participant cap has been reached.",
+            )
 
     logger.info(f"Creating form submission for event {form.event_id} ({event.name})")
     new_entry = FormSubmission(

@@ -10,6 +10,7 @@ interface Challenge {
   teammates?: number;
   name?: string;
   description?: string;
+  max_participants?: number | null;
 }
 
 const DDay: React.FC = () => {
@@ -40,6 +41,7 @@ const DDay: React.FC = () => {
         teammates: event.teammates || 0,
         name: event.name,
         description: event.description,
+        max_participants: event.max_participants ?? null,
       }));
       setChallenges(challengesData);
     } catch (error) {
@@ -55,6 +57,7 @@ const DDay: React.FC = () => {
       sport: "",
       gender: "both",
       teammates: 0,
+      max_participants: null,
     });
     setShowForm(true);
   };
@@ -91,6 +94,12 @@ const DDay: React.FC = () => {
         is_current: false,
         gender: editingChallenge.gender,
         teammates: editingChallenge.teammates || 0,
+        max_participants:
+          editingChallenge.max_participants !== undefined &&
+          editingChallenge.max_participants !== null &&
+          !Number.isNaN(Number(editingChallenge.max_participants))
+            ? Math.max(0, Number(editingChallenge.max_participants))
+            : null,
       };
 
       let response;
@@ -212,6 +221,27 @@ const DDay: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    Max participants (optional)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editingChallenge.max_participants ?? ""}
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        max_participants:
+                          e.target.value === ""
+                            ? null
+                            : Math.max(0, parseInt(e.target.value, 10) || 0),
+                      })
+                    }
+                    className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                    placeholder="e.g. 16 (leave empty for no cap)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
                     Description
                   </label>
                   <textarea
@@ -266,6 +296,11 @@ const DDay: React.FC = () => {
                         {challenge.teammates !== undefined && (
                           <span>
                             <strong>Teammates:</strong> {challenge.teammates}
+                          </span>
+                        )}
+                        {challenge.max_participants != null && (
+                          <span>
+                            <strong>Max participants:</strong> {challenge.max_participants}
                           </span>
                         )}
                       </div>

@@ -20,6 +20,7 @@ class Event(Base):
     separated_genders: Mapped[bool] = mapped_column(Boolean, default=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
     teammates: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    max_participants: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     # Relationship to submissions
     submissions: Mapped[List["FormSubmission"]] = relationship(

@@ -10,6 +10,7 @@ interface Event {
   is_current: boolean;
   separated_genders?: boolean;
   teammates?: number;
+  max_participants?: number | null;
 }
 
 const ChallengingWednesday: React.FC = () => {
@@ -44,6 +45,7 @@ const ChallengingWednesday: React.FC = () => {
           is_current: false,
           separated_genders: false,
           teammates: 0,
+          max_participants: null,
         });
         setEnabled(false);
       }
@@ -66,6 +68,10 @@ const ChallengingWednesday: React.FC = () => {
         date: event?.date || null,
         separated_genders: event?.separated_genders || false,
         teammates: event?.teammates || 0,
+        max_participants:
+          event?.max_participants !== undefined && event?.max_participants !== null
+            ? Math.max(0, event.max_participants)
+            : null,
         is_current: true,
       };
 
@@ -219,8 +225,29 @@ const ChallengingWednesday: React.FC = () => {
                     type="number"
                     min="0"
                     value={event?.teammates || 0}
-                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", teammates: 0 }), teammates: parseInt(e.target.value) || 0 })}
+                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, teammates: 0, max_participants: null }), teammates: parseInt(e.target.value, 10) || 0 })}
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    Max participants (optional)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={event?.max_participants ?? ""}
+                    onChange={(e) =>
+                      setEvent({
+                        ...(event || { id: 0, name: "", is_current: false, teammates: 0, max_participants: null }),
+                        max_participants:
+                          e.target.value === ""
+                            ? null
+                            : Math.max(0, parseInt(e.target.value, 10) || 0),
+                      })
+                    }
+                    className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                    placeholder="e.g. 16 (leave empty for no cap)"
                   />
                 </div>
               </div>
