@@ -18,11 +18,23 @@ logging.basicConfig(
 
 app = FastAPI(title="Olympics API", version="1.0")
 
-# Enable CORS
+
+@app.get("/")
+def root():
+    """If you see this, the app is running."""
+    return {"message": "Olympics API", "events": "/api/events/", "health": "/api/health"}
+
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
+
+
+# Enable CORS – allow all origins, no credentials
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

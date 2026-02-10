@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Serve existing files (e.g. test.txt) directly; only send the rest to Passenger
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Passenger Python app – startup file so Passenger loads wsgi.py
+PassengerEnabled On
+PassengerStartupFile wsgi.py

@@ -64,11 +64,17 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        # For MySQL, Alembic/SQLAlchemy need an explicit schema when checking
+        # for the alembic version table; otherwise MySQL's has_table() can
+        # assert that schema is not None.
+        db_schema = connection.engine.url.database
+
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
             compare_type=True,
             compare_server_default=True,
+            version_table_schema=db_schema,
         )
 
         with context.begin_transaction():
