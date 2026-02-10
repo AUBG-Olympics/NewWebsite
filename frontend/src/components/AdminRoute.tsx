@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getAuthToken, setAuthToken } from "../util/auth";
+import { setAuthToken, decodeToken, getTokenPayload } from "../util/auth";
 import AdminLogin from "../pages/Admin/AdminLogin";
 
 interface AdminRouteProps {
@@ -22,13 +22,14 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
         setAuthToken(tokenFromUrl);
         // Remove token from URL
         window.history.replaceState({}, "", location.pathname);
-        setIsAuthenticated(true);
+        const payload = decodeToken(tokenFromUrl);
+        setIsAuthenticated(payload?.role === "admin");
         return;
       }
 
-      // Check for token in cookie
-      const token = getAuthToken();
-      setIsAuthenticated(!!token);
+      // Check for token in cookie and require admin role
+      const payload = getTokenPayload();
+      setIsAuthenticated(payload?.role === "admin");
     };
 
     checkAuth();

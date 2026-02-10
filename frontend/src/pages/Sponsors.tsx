@@ -147,15 +147,16 @@ const SponsorsPage: React.FC = () => {
               supporter!{" "}
             </p>{" "}
             <div className="mt-6">
-              {" "}
               <a
-                href="mailto:aubgolympicscommittee@gmail.com"
+                //href="mailto:aubgolympicscommittee@gmail.com"
+                href="https://res.cloudinary.com/dq9gemegi/image/upload/v1770745414/97c35b8e-e313-468e-a749-21d45eee77c3_sgznqb.jpg"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-xl border border-red-400/60 bg-transparent px-5 py-3 text-red-300 hover:text-white hover:bg-red-500/20 hover:border-red-400 transition font-semibold tracking-wide"
               >
-                {" "}
-                Contact Us{" "}
-              </a>{" "}
-            </div>{" "}
+                Contact Us
+              </a>
+            </div>
           </div>{" "}
         </section>
       </main>

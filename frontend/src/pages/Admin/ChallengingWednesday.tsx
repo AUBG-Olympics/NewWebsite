@@ -72,7 +72,8 @@ const ChallengingWednesday: React.FC = () => {
           event?.max_participants !== undefined && event?.max_participants !== null
             ? Math.max(0, event.max_participants)
             : null,
-        is_current: true,
+        // Use the toggle to control whether this event is current
+        is_current: enabled,
       };
 
       let response;

@@ -1,6 +1,12 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:4000";
 const TOKEN_COOKIE_NAME = "auth_token";
 
+export interface TokenPayload {
+  sub?: string;
+  role?: string;
+  [key: string]: unknown;
+}
+
 export const getAuthToken = (): string | null => {
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
@@ -21,6 +27,26 @@ export const setAuthToken = (token: string): void => {
 
 export const removeAuthToken = (): void => {
   document.cookie = `${TOKEN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+};
+
+// Decode JWT payload (no signature verification; backend still enforces admin on protected routes)
+export const decodeToken = (token: string): TokenPayload | null => {
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const payload = parts[1];
+    const padded = payload.padEnd(payload.length + (4 - (payload.length % 4)) % 4, "=");
+    const json = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+};
+
+export const getTokenPayload = (): TokenPayload | null => {
+  const token = getAuthToken();
+  if (!token) return null;
+  return decodeToken(token);
 };
 
 export const loginWithGoogle = (): void => {

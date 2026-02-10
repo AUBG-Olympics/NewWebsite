@@ -10,8 +10,7 @@ interface FormSubmissionPayload {
   phone_number: string;
   email: string;
   teammates: string | null;
-  gender?:string;
-  
+  separated_genders?: boolean;
 }
 
 export interface CustomizableFormProps {
@@ -92,21 +91,16 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
       }
     }
 
-    // teammates: if provided, backend requires 1–50 chars total
+    // teammates: required when sanitizedTeammates > 0
     if (sanitizedTeammates > 0 && teammateNames.length > 0) {
-      const teammatesString = teammateNames
-        .filter((name) => name.trim() !== "")
-        .join(", ");
-      if (teammatesString) {
-        if (teammatesString.length < 1 || teammatesString.length > 50) {
-          errors.push("Teammates description must be between 1 and 50 characters.");
-        }
+      const trimmedNames = teammateNames.map((name) => name.trim());
+
+      // Require all teammate slots to be filled
+      const hasEmpty = trimmedNames.some((name) => name.length === 0);
+      if (hasEmpty) {
+        errors.push("Please fill in all teammate names.");
       }
     }
-
-    // gender: backend allows 1–20 chars; our options ("male"/"female") already satisfy this,
-    // so no extra validation needed beyond presence when separated_genders is true.
-
     return errors;
   };
 
@@ -194,7 +188,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
         // Only include gender if separated_genders is true
         if (separated_genders && genderValue) {
-          payload.gender = genderValue;
+          payload.separated_genders = true;
         }
 
         // Submit to backend API
@@ -354,6 +348,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
                     handleTeammateChange(index, event.target.value)
                   }
                   placeholder={`Teammate ${index + 1}`}
+                  required
                 />
               ))}
             </div>

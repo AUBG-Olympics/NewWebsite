@@ -148,8 +148,8 @@ const DDay: React.FC = () => {
           ← Back to Admin Panel
         </button>
 
-        <div className="bg-white/90 border-4 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-8 md:p-12">
-          <div className="flex justify-between items-center mb-8">
+        <div className="bg-white/90 border-4 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-6 md:p-12">
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-8">
             <h1
               className="text-4xl md:text-5xl text-blue-900"
               style={{ fontFamily: "'Permanent Marker', cursive" }}
@@ -282,9 +282,9 @@ const DDay: React.FC = () => {
               challenges.map((challenge) => (
                 <div
                   key={challenge.id}
-                  className="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]"
+                  className="p-5 md:p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-blue-900 mb-2">
                         {challenge.sport || challenge.name || "Unnamed Challenge"}
@@ -308,7 +308,7 @@ const DDay: React.FC = () => {
                         <p className="mt-2 text-blue-800">{challenge.description}</p>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 md:flex-col md:items-end">
                       <button
                         onClick={() => handleEdit(challenge)}
                         className="px-4 py-2 bg-blue-400 text-white font-semibold rounded-lg border-2 border-black hover:bg-blue-500 transition"

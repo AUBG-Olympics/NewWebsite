@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginWithGoogle, getAuthToken } from "../../util/auth";
+import { loginWithGoogle, getTokenPayload } from "../../util/auth";
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already authenticated - if token exists, redirect to admin panel
-    const existingToken = getAuthToken();
-    if (existingToken) {
+    // Check if already authenticated as admin - if admin token exists, redirect to admin panel
+    const payload = getTokenPayload();
+    if (payload?.role === "admin") {
       navigate("/admin", { replace: true });
     }
   }, [navigate]);

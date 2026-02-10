@@ -44,6 +44,12 @@ const SignupFormPage: React.FC = () => {
           return;
         }
 
+        // Only allow signup when the event is marked as current
+        // if (!foundEvent.is_current) {
+        //   setError("Registrations for this event are not open.");
+        //   return;
+        // }
+
         setEvent(foundEvent);
 
         // Always check capacity when page is opened (before showing form)
