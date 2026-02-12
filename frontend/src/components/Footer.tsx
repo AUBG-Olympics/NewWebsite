@@ -45,7 +45,8 @@ const Footer: React.FC = () => {
             <Mail size={18} /> <span className="hidden sm:inline">Email</span>
           </a>
           <a
-            href="https://www.instagram.com/aubg_olympics"
+            //href="https://www.instagram.com/aubg_olympics"
+            href="https://res.cloudinary.com/dq9gemegi/image/upload/v1770745414/mario_bffc1d.png"
             target="_blank"
             rel="noopener noreferrer"
             className={`flex items-center gap-2 hover:text-pink-500 ${textColor} transition`}

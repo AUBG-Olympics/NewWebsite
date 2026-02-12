@@ -2,8 +2,8 @@ FROM node:20-alpine
 
 RUN npm install -g pnpm
 
-# Install bash, curl, make in one layer
-RUN apk add --no-cache bash curl make
+# Install bash, curl, make, python3, and pip in one layer
+RUN apk add --no-cache bash curl make python3 py3-pip
 RUN apk add --no-cache sudo
 
 # Install gum (for Alpine)

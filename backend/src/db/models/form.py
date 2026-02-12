@@ -10,7 +10,7 @@ class FormSubmission(Base):
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     sport = Column(String, nullable=False)
-    gender = Column(String, nullable=False)
+    gender = Column(String, nullable=True)
     name = Column(String, nullable=False)
     teammates = Column(String, nullable=True)
     phone_number = Column(String, nullable=False)

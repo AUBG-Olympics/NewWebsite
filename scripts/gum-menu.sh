@@ -1,18 +1,21 @@
 #!/bin/bash
 set -e
 
-choice=$(gum choose "Start Frontend" "Start Backend" "Start Both (Docker Compose)")
+ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+
+choice=$(gum choose "Start Frontend" "Start Backend" "Start Both")
 
 case "$choice" in
   "Start Frontend")
-    cd frontend
-    pnpm dev
+    echo "Starting frontend via Docker..."
+    docker compose up frontend
     ;;
   "Start Backend")
-    cd backend
-	python -m src.entry
+    echo "Starting backend via Docker..."
+    docker compose up backend
     ;;
-  "Start Both (Docker Compose)")
-    docker-compose up
+  "Start Both")
+    echo "Starting frontend and backend via Docker..."
+    docker compose up
     ;;
 esac
