@@ -14,8 +14,8 @@ class Event(Base):
     __tablename__ = "events"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(1023))
     date: Mapped[Optional[date_type]] = mapped_column(Date)
     separated_genders: Mapped[bool] = mapped_column(Boolean, default=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)

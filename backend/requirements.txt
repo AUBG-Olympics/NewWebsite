@@ -4,6 +4,7 @@ requests
 uvicorn
 authlib
 sqlalchemy
+pymysql
 pydantic[email]
 passlib[bcrypt]
 python-jose

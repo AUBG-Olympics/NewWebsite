@@ -7,15 +7,38 @@ services:
       - ./frontend:/app
     ports:
       - "5173:5173"
+
+  db:
+    image: mysql:8.1
+    container_name: aubgolympics_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: PePeRon1OnF1re
+      MYSQL_DATABASE: aubgolympics_db
+      MYSQL_USER: aubgolympics_user
+      MYSQL_PASSWORD: PePeRon1OnF1re 
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "aubgolympics_user", "-pverystrongpass1"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
   migrate:
-      build:
-        context: ./backend
-        dockerfile: Dockerfile
-      command: alembic upgrade head
-      env_file:
-        - ./backend/.env
-      volumes:
-        - ./backend:/app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: alembic upgrade head
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     build:
@@ -30,3 +53,6 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+
+volumes:
+  db_data:
