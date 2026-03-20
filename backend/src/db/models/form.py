@@ -13,6 +13,7 @@ class FormSubmission(Base):
     gender = Column(String(31), nullable=True)
     name = Column(String(255), nullable=False)
     teammates = Column(String(511), nullable=True)
+    team_name = Column(String(255), nullable=True)
     phone_number = Column(String(21), nullable=False)
     email = Column(String(255), nullable=False)
 
