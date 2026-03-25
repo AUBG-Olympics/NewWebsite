@@ -223,6 +223,72 @@ def export_single_registration_bg(
     finally:
         db.close()
 
+def export_waitlist_header(
+    event_id: int,
+    sport: Optional[str] = None,
+    gender: Optional[str] = None,
+):
+    db = SessionLocal()
+    try:
+        sheets = GoogleSheetsService()
+        event = db.query(Event).filter(Event.id == event_id).first()
+        if not event:
+            logger.warning(f"Event {event_id} not found - cannot add waitlist headers")
+            return None
+
+        # Create / reuse spreadsheet for the event (and sport if specified)
+        spreadsheet_title = f"Registrations – {event.name}"
+        if sport:
+            spreadsheet_title = spreadsheet_title + f" – {sport}"
+
+        logger.info(f"Creating/finding spreadsheet: {spreadsheet_title}")
+        try:
+            spreadsheet_id = sheets.create_spreadsheet(
+                title=spreadsheet_title,
+                editors=SHEETS_EDITORS,
+            )
+            logger.info(f"Spreadsheet created/found with ID: {spreadsheet_id}")
+        except Exception as e:
+            logger.error(
+                f"Failed to create/find spreadsheet for event {event_id}: {str(e)}",
+                exc_info=True,
+            )
+            raise
+
+        sheet_names = sheets.get_sheet_names(spreadsheet_id)
+        if event.separated_genders is True:
+            sheet_name = ""
+            for s in sheet_names:
+                if gender and s.lower().startswith(gender.lower()):
+                    sheet_name = s
+                    break
+            if(sheet_name == ""):
+                return False
+
+            headers = [["Name", "Sport", "Gender", "Teammates", "Phone", "Email"]]
+            sheets.merge_row_and_write(spreadsheet_id, sheet_name, "Waitlist")
+
+            sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
+        try:
+            sheet_name = sport if sport else "Participants"
+            res = sheets.rename_sheet(
+                spreadsheet_id, old_name="Sheet1", new_name=sheet_name
+            )
+            if res != ssc.SHEET_ALREADY_EXISTS and res != ssc.SUCCESS:
+                res = sheets.add_sheet(spreadsheet_id, sheet_name)
+            elif res == ssc.SUCCESS:
+                headers = [["Name", "Sport", "Teammates", "Phone", "Email"]]
+                sheets.merge_row_and_write(spreadsheet_id, sheet_name, "Waitlist")
+                sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
+        except Exception as e:
+            logger.error(f"Error while trying to export: {str(e)}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Error while trying to write Waitlist Headers: {str(e)}")
+
+
+
 
 def export_event_to_sheets(
     event_id: int,
@@ -464,7 +530,11 @@ def submit_form(
             current_count = count_query.count()
         else:
             current_count = base_query.count()
-        if current_count >= event.max_participants:
+
+        if event.enable_waitlist and event.waitlist:
+            current_count -= event.max_participants
+
+        if (event.waitlist and current_count > (event.waitlist_max_participants or 0)) or ( current_count >= event.max_participants):
             logger.info(
                 f"Event {form.event_id} sport {form.sport} reached max participants ({event.max_participants})."
             )

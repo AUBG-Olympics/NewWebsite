@@ -1,0 +1,895 @@
+[
+  {
+    "id": "aleksandra-mihaylova",
+    "name": "Aleksandra Mihaylova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/aleksandra.mihaylova.550",
+      "instagram": "https://www.instagram.com/alexandra.mmihaylova/",
+      "linkedin": "https://www.linkedin.com/in/aleksandra-mihaylova-a90910294/"
+    }
+  },
+  {
+    "id": "andzhela-dyulgerova",
+    "name": "Andzhela Dyulgerova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship",
+      "Marketing",
+      "Video"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/18BSpfe7uL/Rmibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/andjelaxld",
+      "linkedin": "http://inkedin.com/in/andzhela-dyulgerova-0328b8263"
+    }
+  },
+  {
+    "id": "anna-dineva",
+    "name": "Anna Dineva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/anni.dineva.5",
+      "instagram": "https://www.instagram.com/a_dineva/",
+      "linkedin": "https://www.linkedin.com/in/anna-dineva-5aa8942a2/"
+    }
+  },
+  {
+    "id": "david-mitov",
+    "name": "David Mitov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers",
+      "Video"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "https://www.instagram.com/d_m_43",
+      "linkedin": "https://www.facebook.com/profile.php?id=100086147155347"
+    }
+  },
+  {
+    "id": "diana-evtimova",
+    "name": "Diana Evtimova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/diana.evtimova.3/",
+      "instagram": "https://www.instagram.com/devtimovaa/",
+      "linkedin": "https://www.linkedin.com/in/diana-evtimova-840b77241/"
+    }
+  },
+  {
+    "id": "dimitar-vitliyanov",
+    "name": "Dimitar Vitliyanov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Logistics"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "https://www.instagram.com/d.vitliyanov",
+      "linkedin": "https://www.linkedin.com/in/dimitar-vitliyanov-a3a442203"
+    }
+  },
+  {
+    "id": "dzhan-hyusein",
+    "name": "Dzhan Hyusein",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing",
+      "Challenge Organizers",
+      "Video"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100010024385312",
+      "instagram": "https://www.instagram.com/dzhan_hyusein/",
+      "linkedin": "https://www.linkedin.com/in/dzhan-hyusein-3b897a274/"
+    }
+  },
+  {
+    "id": "gabriela-milova",
+    "name": "Gabriela Milova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/1DQzbAq34k/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/gabimilova",
+      "linkedin": "https://www.linkedin.com/in/gabriela-milova-987608324"
+    }
+  },
+  {
+    "id": "gergana-bangeeva",
+    "name": "Gergana Bangeeva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship",
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/gergana.bangeeva",
+      "instagram": "https://www.instagram.com/gerganabangeeva/",
+      "linkedin": "https://www.linkedin.com/in/gergana-bangeeva-757062277/"
+    }
+  },
+  {
+    "id": "hana-egikyan",
+    "name": "Hana Egikyan",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing",
+      "Video"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/hana.egikian",
+      "instagram": "https://www.instagram.com/h_egikyan",
+      "linkedin": "https://www.linkedin.com/in/hana-egikyan-0694371b4/"
+    }
+  },
+  {
+    "id": "hristo-karamanolev",
+    "name": "Hristo Karamanolev",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of BBQ",
+    "departments": [
+      "Sponsorship",
+      "Challenge Organizers",
+      "BBQ"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/",
+      "instagram": "https://www.instagram.com/",
+      "linkedin": "https://www.linkedin.com/feed/"
+    }
+  },
+  {
+    "id": "ilian-ivanov",
+    "name": "Ilian Ivanov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers",
+      "BBQ"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/ilian.ivanov.1422",
+      "instagram": "https://www.instagram.com/ilian_ivnv/",
+      "linkedin": "https://www.linkedin.com/in/ilian-ivanov-56b9b7254"
+    }
+  },
+  {
+    "id": "iva-nikolaeva",
+    "name": "Iva Nikolaeva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/iva.nikolaevaa",
+      "instagram": "https://www.instagram.com/iva.nklv/",
+      "linkedin": "https://www.linkedin.com/in/iva-nikolaeva-494079337/"
+    }
+  },
+  {
+    "id": "ivana-filipova",
+    "name": "Ivana Filipova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of Video",
+    "departments": [
+      "Marketing",
+      "Logistics",
+      "Video"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/ivana.filipova.3597",
+      "instagram": "https://www.instagram.com/ivanaafilipova",
+      "linkedin": "https://www.linkedin.com/in/ivana-filipova-058622332/"
+    }
+  },
+  {
+    "id": "jacob-bishop",
+    "name": "Jacob Bishop",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/14rmGVGZuh/",
+      "instagram": "https://www.instagram.com/jacob_bishop11/",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "konstantin-strashnikov",
+    "name": "Konstantin Strashnikov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": true,
+    "isHead": true,
+    "position": "Head of Marketing",
+    "departments": [
+      "Board",
+      "Marketing",
+      "Video"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100014176747892",
+      "instagram": "https://www.instagram.com/konstantin_strashnikov",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "lora-gancheva",
+    "name": "Lora Gancheva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers",
+      "BBQ"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/18BmrX1uzx/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/loraganchevaa",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "manuela-vukadinova",
+    "name": "Manuela Vukadinova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100011165119316",
+      "instagram": "https://www.instagram.com/manuela_vukadinova",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "mario-boyanov",
+    "name": "Mario Boyanov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": true,
+    "isHead": true,
+    "position": "President of Olympics",
+    "departments": [
+      "Board",
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/jorocosa",
+      "instagram": "https://www.instagram.com/marioboyanov",
+      "linkedin": "https://www.linkedin.com/in/mario-boyanov-344083278"
+    }
+  },
+  {
+    "id": "marko-milanov",
+    "name": "Marko Milanov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of Challenge Organizers",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/marko.milanov.501",
+      "instagram": "https://www.instagram.com/marko_milanov45/",
+      "linkedin": "https://www.linkedin.com/in/marko-milanov-5299182b9/"
+    }
+  },
+  {
+    "id": "martin-ivanov",
+    "name": "Martin Ivanov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "https://www.instagram.com/_.iwanow._",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "mila-balkandzhieva",
+    "name": "Mila Balkandzhieva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": true,
+    "isHead": true,
+    "position": "Head of Sponsorship",
+    "departments": [
+      "Board",
+      "Sponsorship",
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100007015937863",
+      "instagram": "https://www.instagram.com/milaa.dimitrova/",
+      "linkedin": "https://www.linkedin.com/in/mila-balkandzhieva-a940952b9/"
+    }
+  },
+  {
+    "id": "neda-oresharova",
+    "name": "Neda Oresharova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100006318486029",
+      "instagram": "https://www.instagram.com/nedaoresharova/",
+      "linkedin": "https://www.linkedin.com/in/neda-oresharova-33824a265/"
+    }
+  },
+  {
+    "id": "nia-hristova",
+    "name": "Nia Hristova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship",
+      "Challenge Organizers",
+      "Logistics"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/ni.hristova",
+      "instagram": "https://www.instagram.com/niiahristova",
+      "linkedin": "https://www.linkedin.com/in/nia-hristova-178a8b269"
+    }
+  },
+  {
+    "id": "nika-gulmamadova",
+    "name": "Nika Gulmamadova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/18ajnpWTfv/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/gnikax/",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "nikol-tileva",
+    "name": "Nikol Tileva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100008686486534",
+      "instagram": "https://www.instagram.com/nikoltileva/",
+      "linkedin": "https://www.linkedin.com/in/nikol-tileva-6944b5252/"
+    }
+  },
+  {
+    "id": "nikolay-despotov",
+    "name": "Nikolay Despotov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers",
+      "IT"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/nikolay.despotov.16/",
+      "instagram": "https://www.instagram.com/nikolay.despotov/",
+      "linkedin": "https://www.linkedin.com/in/nikolay-despotov/"
+    }
+  },
+  {
+    "id": "ralitsa-draganova",
+    "name": "Ralitsa Draganova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Video"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/rliza.draganova",
+      "instagram": "https://www.instagram.com/ralitsadraganova/",
+      "linkedin": "https://www.linkedin.com/in/ralitsa-draganova-817234266/"
+    }
+  },
+  {
+    "id": "raya-koleva",
+    "name": "Raya Koleva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing",
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/1BTutugMKz/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/ra_yaa_koleva",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "raya-zasheva",
+    "name": "Raya Zasheva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100085828025741",
+      "instagram": "https://www.instagram.com/raya_zasheva/",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "spasiela-gizdova",
+    "name": "Spasiela Gizdova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": true,
+    "isHead": true,
+    "position": "Head of Logistics",
+    "departments": [
+      "Board",
+      "Challenge Organizers",
+      "Logistics",
+      "PR"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/spasiela.gizdova",
+      "instagram": "https://www.instagram.com/spasielkaaa",
+      "linkedin": "https://www.linkedin.com/in/spasiela-gizdova-7448812bb"
+    }
+  },
+  {
+    "id": "stefan-tosunov",
+    "name": "Stefan Tosunov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/stefan.tosunov",
+      "instagram": "https://www.instagram.com/stefan_tosunov/",
+      "linkedin": "https://www.linkedin.com/in/stefan-tosunov-b70539234/"
+    }
+  },
+  {
+    "id": "stefania-dimova",
+    "name": "Stefania Dimova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship",
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100014913512973",
+      "instagram": "https://www.instagram.com/stefaniya.dimova/#",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "stela-terziyska",
+    "name": "Stela Terziyska",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=100010565774910",
+      "instagram": " https://www.instagram.com/stellaterziyska",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "teodor-kovachev",
+    "name": "Teodor Kovachev",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of IT",
+    "departments": [
+      "Logistics",
+      "IT"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/teodor.kovachev.12",
+      "instagram": "https://www.instagram.com/teodor.kovachev.12",
+      "linkedin": "https://www.linkedin.com/in/teodor-kovachev-5820a0282"
+    }
+  },
+  {
+    "id": "teodora-stefanova",
+    "name": "Teodora Stefanova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": true,
+    "position": "Head of PR",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/teddy.stefanova.2003",
+      "instagram": "https://www.instagram.com/teodoraa.stefanova/",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "victoria-lyaskova",
+    "name": "Victoria Lyaskova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/1PgcJnQ82Z/?mibextid=wwXIfr",
+      "instagram": "https://www.instagram.com/vlqskova",
+      "linkedin": "https://www.linkedin.com/in/victoria-lyaskova-741b21354"
+    }
+  },
+  {
+    "id": "viktoria-enkina",
+    "name": "Viktoria Enkina",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/people/Viktoria-Enkina/pfbid02J2eAWkCzW2HcJkdfj9qhKJFtptnMF7iKaPsTvzBvgmXhKkJBvFj5LXKhNjwuDrTml/",
+      "instagram": "https://www.instagram.com/viktoriaa_enkina",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "aleksandra-kim",
+    "name": "Aleksandra Kim",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Logistics"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "avrora-cherneva",
+    "name": "Avrora Cherneva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "elena-todeva",
+    "name": "Elena Todeva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "eliza-ilieva",
+    "name": "Eliza Ilieva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "evelina-stancheva",
+    "name": "Evelina Stancheva",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "helin-shakoriglu",
+    "name": "Helin Shakoriglu",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "jonida-merkohasani",
+    "name": "Jonida Merkohasani",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "naku-khushqadamova",
+    "name": "Naku Khushqadamova",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "PR"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "samuil-yankov",
+    "name": "Samuil Yankov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Challenge Organizers",
+      "BBQ"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  },
+  {
+    "id": "toma-bourov",
+    "name": "Toma Bourov",
+    "photo": "",
+    "ddayPhoto": "",
+    "boardRole": "",
+    "isBoard": false,
+    "isHead": false,
+    "position": "",
+    "departments": [
+      "Sponsorship",
+      "Marketing"
+    ],
+    "links": {
+      "facebook": "",
+      "instagram": "",
+      "linkedin": ""
+    }
+  }
+]

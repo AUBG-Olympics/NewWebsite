@@ -1,4 +1,4 @@
-from datetime import date as datetype
+from datetime import datetime as datetype
 from typing import Optional, Annotated
 
 from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
@@ -55,10 +55,14 @@ class EventBase(BaseModel):
     name: str
     description: Optional[str] = None
     date: Optional[datetype] = None
+    location: Optional[str] = None
     separated_genders: bool = False
     is_current: bool = False
     teammates: Optional[int] = None
+    min_teammates: Optional[int] = 1 if (teammates is not None and teammates > 1) else None
     max_participants: Optional[int] = None
+    waitlist: Optional[bool] = False
+    waitlist_max_participants: Optional[int] = None
 
     @field_validator("separated_genders", mode="before")
     @classmethod

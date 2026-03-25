@@ -199,6 +199,67 @@ class GoogleSheetsService:
         except HttpError as e:
             self._handle_http_error(e, "Write sheet")
 
+    def merge_row_and_write(
+        self, spreadsheet_id: str, sheet_name: str, text_to_write: str
+    ):
+        try:
+            self.add_sheet(spreadsheet_id, sheet_name)
+
+            # 1. Find first empty row
+            result = self._sheets.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id,
+                range=sheet_name,
+            ).execute()
+
+            values = result.get("values", [])
+            row_index = len(values)  # 0-based
+
+            # 2. Get sheetId + column count
+            metadata = self._sheets.spreadsheets().get(
+                spreadsheetId=spreadsheet_id
+            ).execute()
+
+            sheet = next(
+                s for s in metadata["sheets"]
+                if s["properties"]["title"] == sheet_name
+            )
+
+            sheet_id = sheet["properties"]["sheetId"]
+            column_count = sheet["properties"]["gridProperties"]["columnCount"]
+
+            # 3. Merge row
+            self._sheets.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body={
+                    "requests": [
+                        {
+                            "mergeCells": {
+                                "range": {
+                                    "sheetId": sheet_id,
+                                    "startRowIndex": row_index,
+                                    "endRowIndex": row_index + 1,
+                                    "startColumnIndex": 0,
+                                    "endColumnIndex": column_count,
+                                },
+                                "mergeType": "MERGE_ALL",
+                            }
+                        }
+                    ]
+                },
+            ).execute()
+
+            # 4. Write text into merged cell
+            self._sheets.spreadsheets().values().update(
+                spreadsheetId=spreadsheet_id,
+                range=f"{sheet_name}!A{row_index + 1}",
+                valueInputOption="RAW",
+                body={"values": [[text_to_write]]},
+            ).execute()
+
+            return SheetsStatusCodes.SUCCESS
+
+        except HttpError as e:
+            self._handle_http_error(e, "Merge row and write")
     def write_to_sheet(
         self,
         spreadsheet_id: str,
