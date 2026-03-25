@@ -425,7 +425,6 @@ def submit_form(
     form: FormCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    sheets: GoogleSheetsService = Depends(get_google_sheets_service),
 ):
     """Public: Submit the registration form for a specific event"""
     print(f"[FORMS] Form submission received for event {form.event_id}")

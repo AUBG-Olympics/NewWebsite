@@ -50,7 +50,16 @@ async def catch_all_exceptions(request, exc):
     import traceback
 
     traceback.print_exc()  # prints the real error
-    return JSONResponse({"error": str(exc)}, status_code=500)
+    # Always send CORS headers on errors so the browser doesn't report "CORS error" instead of 500
+    return JSONResponse(
+        {"error": str(exc)},
+        status_code=500,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 
 # Routers

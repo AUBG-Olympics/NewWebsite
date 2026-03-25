@@ -91,14 +91,12 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
       }
     }
 
-    // teammates: required when sanitizedTeammates > 0
-    if (sanitizedTeammates > 0 && teammateNames.length > 0) {
-      const trimmedNames = teammateNames.map((name) => name.trim());
-
-      // Require all teammate slots to be filled
-      const hasEmpty = trimmedNames.some((name) => name.length === 0);
-      if (hasEmpty) {
-        errors.push("Please fill in all teammate names.");
+    // teammates: require at least 5 names when event has teammate slots
+    const MIN_TEAMMATES = 5;
+    if (sanitizedTeammates > 0) {
+      const filledCount = teammateNames.filter((name) => name.trim().length > 0).length;
+      if (filledCount < MIN_TEAMMATES) {
+        errors.push(`Please enter at least ${MIN_TEAMMATES} teammate names.`);
       }
     }
     return errors;
@@ -247,6 +245,9 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
             className="text-3xl md:text-4xl text-orange-500 font-lilita"
           >
             {sport?.toUpperCase()}
+            <span className="ml-2 text-xl md:text-2xl text-red-600 font-lilita">
+              WAITLIST ONLY
+            </span>
           </h2>
           <p className="text-blue-800 text-sm md:text-base max-w-xl mx-auto">
             {description}
@@ -334,7 +335,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
                 Teammates ({sanitizedTeammates})
               </span>
               <span className="text-xs text-blue-500">
-                Add the name for each teammate slot.
+                Min 5 teammates required
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,7 +349,6 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
                     handleTeammateChange(index, event.target.value)
                   }
                   placeholder={`Teammate ${index + 1}`}
-                  required
                 />
               ))}
             </div>

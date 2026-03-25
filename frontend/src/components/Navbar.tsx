@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { X, Menu } from "lucide-react";
-import FlameButton from "./DDayButton";
+//import FlameButton from "./DDayButton";
 import { useChallengingWednesday } from "../hooks/useChallengingWednesday";
 
 const navLinkClass = (isActive?: boolean) =>
@@ -60,18 +60,7 @@ const Navbar: React.FC = () => {
           </ul>
         </div>
 
-        {/* Right: DDAY button (desktop unchanged) */}
-        <div className="hidden md:block">
-          <Link to="/dday">
-            <FlameButton
-              className="relative"
-              animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
-              flameScale={2}
-            >
-              DDAY
-            </FlameButton>
-          </Link>
-        </div>
+        {/* DDAY button hidden for now */}
 
         {/* Mobile hamburger (only on < md) */}
         <button
@@ -130,18 +119,7 @@ const Navbar: React.FC = () => {
             )}
           </ul>
 
-          {/* Mobile DDAY button */}
-          <div className="pt-2">
-            <Link to="/dday" onClick={() => setOpen(false)}>
-              <FlameButton
-                className="relative w-full justify-center"
-                animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
-                flameScale={2}
-              >
-                DDAY
-              </FlameButton>
-            </Link>
-          </div>
+          {/* Mobile DDAY button hidden for now */}
         </div>
       </div>
     </nav>

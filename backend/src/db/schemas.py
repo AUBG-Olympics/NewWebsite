@@ -93,7 +93,7 @@ class EventResponse(EventBase):
 # ----- Form Schemas --------
 # ---------------------------
 PhoneNumber = Annotated[str, Field(min_length=10, max_length=15)]
-TeammatesStr = Annotated[str, Field(min_length=1, max_length=50)]
+TeammatesStr = Annotated[str, Field(min_length=1, max_length=500)]
 SportStr = Annotated[str, Field(min_length=2, max_length=50)]
 GenderStr = Annotated[str, Field(min_length=1, max_length=20)]
 NameStr = Annotated[str, Field(min_length=2, max_length=50)]

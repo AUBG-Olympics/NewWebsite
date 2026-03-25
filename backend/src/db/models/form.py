@@ -12,7 +12,7 @@ class FormSubmission(Base):
     sport = Column(String, nullable=False)
     gender = Column(String, nullable=True)
     name = Column(String, nullable=False)
-    teammates = Column(String, nullable=True)
+    teammates = Column(String(500), nullable=True)
     phone_number = Column(String, nullable=False)
     email = Column(String, nullable=False)
 

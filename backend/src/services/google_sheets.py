@@ -36,7 +36,6 @@ class GoogleSheetsService:
                 scopes=self.SCOPES,
             )
 
-            print(self.config("GOOGLE_REFRESH_TOKEN"))
             if not self._creds.valid:
                 self._creds.refresh(Request())
 

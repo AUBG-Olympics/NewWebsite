@@ -24,7 +24,6 @@ async def sheets_callback(
 ):
     token = await google_sheets.authorize_access_token(request)
 
-    print(f"Token: {token}")
     refresh_token = token.get("refresh_token")
     if not refresh_token:
         return JSONResponse(
