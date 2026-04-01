@@ -1,6 +1,6 @@
-import React from "react";
-import sponsors from "../data/sponsors.json";
+import React, { useEffect, useState } from "react";
 import CloudinaryImg from "../../lib/CloudinaryImg"; // ensure .tsx component path
+import { API_BASE_URL } from "../util/auth";
 
 const SectionHeading: React.FC<{
   title: string;
@@ -21,6 +21,7 @@ const SectionHeading: React.FC<{
 );
 
 type Sponsor = {
+  id?: number;
   name: string;
   url: string;
   logo: string;
@@ -46,7 +47,27 @@ const gridCols = (n?: number) =>
   "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5");
 
 const SponsorsPage: React.FC = () => {
-  const tiers = sponsors as Tier[];
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch(`${API_BASE_URL}/api/sponsor-tiers/with-sponsors`);
+        if (!res.ok) throw new Error("Failed to load sponsors");
+        const data = (await res.json()) as Tier[];
+        setTiers(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load sponsors");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-orange-400 to-black overflow-hidden">
@@ -90,6 +111,11 @@ const SponsorsPage: React.FC = () => {
 
       {/* TIERS */}
       <main className="relative z-10 mx-auto max-w-7xl px-6 pb-20">
+        {loading ? (
+          <p className="text-center text-blue-100">Loading sponsors…</p>
+        ) : error ? (
+          <p className="text-center text-red-200">{error}</p>
+        ) : null}
         {tiers.map((tier) => (
           <section key={tier.id} id={tier.id} className="mt-10 md:mt-14">
             {/* use SectionHeading */}
@@ -105,8 +131,13 @@ const SponsorsPage: React.FC = () => {
                 tier.columns
               )} gap-6 md:gap-8 place-items-center`}
             >
-              {tier.sponsors.map((s) => (
-                <a
+              {tier.sponsors.map((s) => {
+                const cardClasses = s.invertOnDark
+                  ? "bg-black/45 hover:bg-black/55 ring-white/20 hover:ring-white/30"
+                  : "bg-white/70 hover:bg-white/80 ring-white/15 hover:ring-white/30";
+
+                return (
+                  <a
                   key={s.name}
                   href={s.url}
                   target="_blank"
@@ -114,18 +145,21 @@ const SponsorsPage: React.FC = () => {
                   className="group block w-full"
                   aria-label={`Visit ${s.name}`}
                 >
-                  <div className="flex items-center justify-center bg-white/20 hover:bg-white/10 transition rounded-xl p-5 md:p-6 ring-1 ring-white/10 hover:ring-white/20">
+                  <div
+                    className={`flex items-center justify-center w-full h-20 md:h-24 transition rounded-xl px-5 md:px-6 ring-1 ${cardClasses}`}
+                  >
                     <CloudinaryImg
                       src={s.logo}
                       alt={s.name}
                       width={tier.logoMaxWidth ?? 200}
-                      className={`object-contain max-h-14 md:max-h-16 ${
+                      className={`object-contain h-12 md:h-14 w-auto max-w-full ${
                         s.invertOnDark ? "brightness-0 invert" : ""
-                      }`}
+                      } drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]`}
                     />
                   </div>
                 </a>
-              ))}
+                );
+              })}
             </div>
           </section>
         ))}

@@ -46,7 +46,16 @@ export const decodeToken = (token: string): TokenPayload | null => {
 export const getTokenPayload = (): TokenPayload | null => {
   const token = getAuthToken();
   if (!token) return null;
-  return decodeToken(token);
+  const payload = decodeToken(token);
+  if (!payload) return null;
+
+  // JWT exp is in seconds since epoch.
+  const exp = typeof payload.exp === "number" ? payload.exp : null;
+  if (exp !== null && Date.now() >= exp * 1000) {
+    removeAuthToken();
+    return null;
+  }
+  return payload;
 };
 
 export const loginWithGoogle = (): void => {
@@ -92,10 +101,30 @@ export const handleAuthCallback = async (): Promise<string | null> => {
 
 export const getAuthHeaders = (): HeadersInit => {
   const token = getAuthToken();
+  const payload = getTokenPayload();
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(token && payload && { Authorization: `Bearer ${token}` }),
   };
+};
+
+export const apiFetch = async (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> => {
+  const headers: HeadersInit = {
+    ...(init?.headers || {}),
+    ...getAuthHeaders(),
+  };
+
+  const response = await fetch(input, { ...init, headers });
+  if (response.status === 401 || response.status === 403) {
+    removeAuthToken();
+    if (window.location.pathname.startsWith("/admin")) {
+      window.location.href = "/admin";
+    }
+  }
+  return response;
 };
 
 export const checkAuth = async (): Promise<boolean> => {

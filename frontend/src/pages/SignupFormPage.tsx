@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CustomizableForm from "../components/CustomizableForm";
+import SponsorCarousel from "../components/SponsorCarousel";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
@@ -10,8 +11,13 @@ interface Event {
   description?: string;
   date?: string;
   separated_genders?: boolean;
-  teammates?: number;
+  max_teammates?: number;
+  min_teammates?: number | null;
+  whatsapp_link?: string | null;
   max_participants?: number | null;
+  enable_waitlist?: boolean;
+  waitlist?: boolean;
+  waitlist_max_participants?: number | null;
   is_current: boolean;
 }
 
@@ -22,6 +28,7 @@ const SignupFormPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFull, setIsFull] = useState(false);
+  const [capacityInfo, setCapacityInfo] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -60,7 +67,8 @@ const SignupFormPage: React.FC = () => {
           );
           if (capRes.ok) {
             const data = await capRes.json();
-            setIsFull(Boolean(data.is_full));
+            setIsFull(Boolean(data.full));
+            setCapacityInfo(data);
           }
         } catch (e) {
           console.error("Failed to fetch capacity status", e);
@@ -102,32 +110,50 @@ const SignupFormPage: React.FC = () => {
     );
   }
 
+  const isWaitlist = Boolean(capacityInfo?.waitlist);
+  const waitlistEnabled = Boolean(
+    capacityInfo?.waitlist ||
+      capacityInfo?.male_waitlist ||
+      capacityInfo?.female_waitlist,
+  );
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#e3772c] via-orange-200 to-orange-100">
       <div className="container mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto mb-6">
+          <SponsorCarousel />
+        </div>
         <button
           onClick={() => navigate("/dday")}
           className="mb-6 px-4 py-2 bg-white text-blue-900 rounded-lg hover:bg-blue-50 hover:text-blue-700 font-semibold flex items-center gap-2 transition-colors"
         >
           ← Back to Events
         </button>
-        {isFull ? (
+        {isFull && !isWaitlist ? (
           <div className="max-w-3xl mx-auto bg-white/90 border-4 border-red-500 rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-8 md:p-12 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-red-600 mb-4">
               The cap has already been filled
             </h2>
             <p className="text-blue-900">
-              Registration for this event is no longer available. Please choose another event or contact the organizers.
+              Registration for this event is no longer available.
             </p>
           </div>
         ) : (
-          <CustomizableForm
-            teammates={event.teammates || 0}
-            separated_genders={event.separated_genders}
-            eventId={event.id}
-            sport={event.name}
-            description={event.description || ""}
-          />
+          <>
+
+            <CustomizableForm
+              maxTeammates={event.max_teammates || 0}
+              minTeammates={event.min_teammates ?? null}
+              separated_genders={event.separated_genders}
+              eventId={event.id}
+              sport={event.name}
+              description={event.description || ""}
+              waitlistEnabled={waitlistEnabled}
+              capacityIsFull={isFull}
+              capacityInfo={capacityInfo}
+              onSubmit={() => navigate(`/dday/signup/success/${event.id}`)}
+            />
+          </>
         )}
       </div>
     </section>

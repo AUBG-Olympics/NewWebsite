@@ -13,7 +13,7 @@
       {
         "name": "BACB",
         "url": "https://www.bacb.bg/bg",
-        "logo": "/SponsorsLogos/BACB_logos_for_png_2_Hor.Col.ENG_eg5f9e.png"
+        "logo": "/SponsorsLogos/BACB_logos_for_png_2_Hor.Col.ENG_eg5f9e_xljsxd.png"
       },
       {
         "name": "Xiro",
@@ -23,7 +23,8 @@
       {
         "name": "Derma Art",
         "url": "https://www.derma-art.bg/index.html",
-        "logo": "/SponsorsLogos/DermaAct_ayl6oy.png"
+        "logo": "/SponsorsLogos/DermaAct_ayl6oy.png",
+        "invertOnDark": true
       }
     ]
   },

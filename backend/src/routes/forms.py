@@ -48,6 +48,8 @@ def get_event_capacity(
         raise HTTPException(status_code=404, detail="Event not found")
     sport_key = sport or event.name
     max_participants = event.max_participants
+    waitlist_enabled = bool(event.enable_waitlist and (event.waitlist_max_participants or 0) > 0)
+    waitlist_size = int(event.waitlist_max_participants or 0)
 
     base = db.query(FormSubmission).filter(
         FormSubmission.event_id == event_id,
@@ -55,7 +57,21 @@ def get_event_capacity(
     )
     total_count = base.count()
 
-    if event.separated_genders and max_participants is not None:
+    if event.separated_genders and (
+        max_participants is not None
+        or event.max_participants_male is not None
+        or event.max_participants_female is not None
+    ):
+        male_cap = (
+            event.max_participants_male
+            if event.max_participants_male is not None
+            else max_participants
+        )
+        female_cap = (
+            event.max_participants_female
+            if event.max_participants_female is not None
+            else max_participants
+        )
         male_count = base.filter(
             or_(
                 func.lower(FormSubmission.gender) == "male",
@@ -68,26 +84,70 @@ def get_event_capacity(
                 func.lower(FormSubmission.gender) == "woman",
             )
         ).count()
-        is_full = male_count >= max_participants and female_count >= max_participants
+        male_is_full = male_cap is not None and male_count >= male_cap
+        female_is_full = female_cap is not None and female_count >= female_cap
+        full = bool(male_is_full and female_is_full)
+        male_waitlist = bool(
+            waitlist_enabled
+            and male_cap is not None
+            and male_count >= male_cap
+            and male_count < (male_cap + waitlist_size)
+        )
+        female_waitlist = bool(
+            waitlist_enabled
+            and female_cap is not None
+            and female_count >= female_cap
+            and female_count < (female_cap + waitlist_size)
+        )
+        waitlist = bool(male_waitlist or female_waitlist)
+
         return {
             "event_id": event_id,
             "sport": sport_key,
             "max_participants": max_participants,
+            "max_participants_male": male_cap,
+            "max_participants_female": female_cap,
             "current_participants": total_count,
             "male_count": male_count,
             "female_count": female_count,
-            "is_full": is_full,
+            "male_is_full": male_is_full,
+            "female_is_full": female_is_full,
+            # New canonical flags (requested contract)
+            "full": full,
+            "waitlist": waitlist,
+            "male_waitlist": male_waitlist,
+            "female_waitlist": female_waitlist,
+            # Old keys kept for backward compatibility
+            "is_full": full,
+            "waitlist_enabled": waitlist_enabled,
+            "waitlist_max_participants": waitlist_size,
         }
     if max_participants is not None:
-        is_full = total_count >= max_participants
+        full = total_count >= max_participants
     else:
-        is_full = False
+        full = False
+
+    waitlist = bool(
+        waitlist_enabled
+        and max_participants is not None
+        and total_count >= max_participants
+        and total_count < (max_participants + waitlist_size)
+    )
     return {
         "event_id": event_id,
         "sport": sport_key,
         "max_participants": max_participants,
         "current_participants": total_count,
-        "is_full": is_full,
+        "full": full,
+        "waitlist": waitlist,
+        "male_is_full": full,
+        "female_is_full": full,
+        "male_waitlist": waitlist,
+        "female_waitlist": waitlist,
+        # Back-compat keys
+        "is_full": full,
+        "waitlist_enabled": waitlist_enabled,
+        "waitlist_max_participants": waitlist_size,
     }
 
 
@@ -128,6 +188,65 @@ def export_single_registration(
         raise
 
     sheet_names = sheets.get_sheet_names(spreadsheet_id)
+
+    # Add a single WAITLIST separator row at the exact transition point
+    # (first overflow submission after the main cap is filled).
+    def _append_waitlist_marker_if_transition(sheet_name: str) -> None:
+        if not event.enable_waitlist:
+            return
+        waitlist_size = int(event.waitlist_max_participants or 0)
+        if waitlist_size <= 0:
+            return
+
+        base_query = db.query(FormSubmission).filter(
+            FormSubmission.event_id == event_id,
+            FormSubmission.sport == (sport or event.name),
+        )
+
+        if event.separated_genders:
+            gender_lower = (entity.gender or "").strip().lower()
+            if gender_lower in ("male", "man"):
+                cap = (
+                    event.max_participants_male
+                    if event.max_participants_male is not None
+                    else event.max_participants
+                )
+                count_query = base_query.filter(
+                    or_(
+                        func.lower(FormSubmission.gender) == "male",
+                        func.lower(FormSubmission.gender) == "man",
+                    )
+                )
+            elif gender_lower in ("female", "woman"):
+                cap = (
+                    event.max_participants_female
+                    if event.max_participants_female is not None
+                    else event.max_participants
+                )
+                count_query = base_query.filter(
+                    or_(
+                        func.lower(FormSubmission.gender) == "female",
+                        func.lower(FormSubmission.gender) == "woman",
+                    )
+                )
+            else:
+                cap = event.max_participants
+                count_query = base_query.filter(FormSubmission.gender == entity.gender)
+
+            if cap is None:
+                return
+            current_count = count_query.count()
+            # Transition moment: first waitlist signup for that gender.
+            if current_count == cap + 1:
+                sheets.append_to_sheet(spreadsheet_id, sheet_name, [["WAITLIST"]])
+        else:
+            cap = event.max_participants
+            if cap is None:
+                return
+            current_count = base_query.count()
+            # Transition moment: first waitlist signup overall.
+            if current_count == cap + 1:
+                sheets.append_to_sheet(spreadsheet_id, sheet_name, [["WAITLIST"]])
     if event.separated_genders is True:
         sheet_name = ""
         for s in sheet_names:
@@ -144,7 +263,17 @@ def export_single_registration(
 
                 if res == ssc.SHEET_NOT_FOUND:
                     sheets.add_sheet(spreadsheet_id, sheet_name)
-                headers = [["Name", "Sport", "Gender", "Teammates", "Phone", "Email"]]
+                headers = [
+                    [
+                        "Name",
+                        "Sport",
+                        "Gender",
+                        "Teammates",
+                        "Team Name",
+                        "Phone",
+                        "Email",
+                    ]
+                ]
 
                 sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
             except Exception as e:
@@ -157,10 +286,12 @@ def export_single_registration(
                 entity.sport,
                 entity.gender,
                 entity.teammates,
+            entity.team_name or "",
                 entity.phone_number,
                 entity.email,
             ]
         ]
+        _append_waitlist_marker_if_transition(sheet_name)
         sheets.append_to_sheet(spreadsheet_id, sheet_name, values)
         logger.info("Export Successful")
         return
@@ -173,7 +304,7 @@ def export_single_registration(
         if res != ssc.SHEET_ALREADY_EXISTS and res != ssc.SUCCESS:
             res = sheets.add_sheet(spreadsheet_id, sheet_name)
         elif res == ssc.SUCCESS:
-            headers = [["Name", "Sport", "Teammates", "Phone", "Email"]]
+            headers = [["Name", "Sport", "Teammates", "Team Name", "Phone", "Email"]]
 
             sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
     except Exception as e:
@@ -185,10 +316,12 @@ def export_single_registration(
             entity.name,
             entity.sport,
             entity.teammates,
+            entity.team_name or "",
             entity.phone_number,
             entity.email,
         ]
     ]
+    _append_waitlist_marker_if_transition(sheet_name)
     sheets.append_to_sheet(spreadsheet_id, sheet_name, values)
     logger.info("Export Successful")
 
@@ -265,7 +398,15 @@ def export_waitlist_header(
             if(sheet_name == ""):
                 return False
 
-            headers = [["Name", "Sport", "Gender", "Teammates", "Phone", "Email"]]
+            headers = [[
+                "Name",
+                "Sport",
+                "Gender",
+                "Teammates",
+                "Team Name",
+                "Phone",
+                "Email",
+            ]]
             sheets.merge_row_and_write(spreadsheet_id, sheet_name, "Waitlist")
 
             sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
@@ -277,7 +418,7 @@ def export_waitlist_header(
             if res != ssc.SHEET_ALREADY_EXISTS and res != ssc.SUCCESS:
                 res = sheets.add_sheet(spreadsheet_id, sheet_name)
             elif res == ssc.SUCCESS:
-                headers = [["Name", "Sport", "Teammates", "Phone", "Email"]]
+                headers = [["Name", "Sport", "Teammates", "Team Name", "Phone", "Email"]]
                 sheets.merge_row_and_write(spreadsheet_id, sheet_name, "Waitlist")
                 sheets.append_to_sheet(spreadsheet_id, sheet_name, headers)
         except Exception as e:
@@ -380,9 +521,17 @@ def export_event_to_sheets(
             raise
 
         values = [
-            ["Name", "Sport", "Gender", "Teammates", "Phone", "Email"],
+            ["Name", "Sport", "Gender", "Teammates", "Team Name", "Phone", "Email"],
             *[
-                [s.name, s.sport, s.gender, s.teammates, s.phone_number, s.email]
+                [
+                    s.name,
+                    s.sport,
+                    s.gender,
+                    s.teammates,
+                    s.team_name or "",
+                    s.phone_number,
+                    s.email,
+                ]
                 for s in submissions
             ],
         ]
@@ -445,9 +594,9 @@ def export_event_to_sheets(
         raise
 
     male_values = [
-        ["Name", "Sport", "Gender", "Teammates", "Phone", "Email"],
+        ["Name", "Sport", "Gender", "Teammates", "Team Name", "Phone", "Email"],
         *[
-            [s.name, s.sport, s.gender, s.teammates, s.phone_number, s.email]
+            [s.name, s.sport, s.gender, s.teammates, s.team_name or "", s.phone_number, s.email]
             for s in male_submissions
         ],
     ]
@@ -459,9 +608,9 @@ def export_event_to_sheets(
     logger.info(f"Successfully wrote {len(male_values)-1} rows to {male_sheet} sheet")
 
     female_values = [
-        ["Name", "Sport", "Gender", "Teammates", "Phone", "Email"],
+        ["Name", "Sport", "Gender", "Teammates", "Team Name", "Phone", "Email"],
         *[
-            [s.name, s.sport, s.gender, s.teammates, s.phone_number, s.email]
+            [s.name, s.sport, s.gender, s.teammates, s.team_name or "", s.phone_number, s.email]
             for s in female_submissions
         ],
     ]
@@ -503,15 +652,79 @@ def submit_form(
         logger.warning(f"Event {form.event_id} not found")
         raise HTTPException(status_code=404, detail="Event not found")
 
+    # ------------------------------------------------------------------
+    # Uniqueness: the same email can only register once per sport
+    # (sport is the event name as sent by the frontend).
+    # ------------------------------------------------------------------
+    existing = (
+        db.query(FormSubmission)
+        .filter(
+            FormSubmission.event_id == form.event_id,
+            FormSubmission.sport == form.sport,
+            func.lower(FormSubmission.email) == form.email.lower(),
+        )
+        .first()
+    )
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="This email is already registered for this sport.",
+        )
+
+    # ------------------------------------------------------------------
+    # Team requirements (team_name + teammate count)
+    # ------------------------------------------------------------------
+    max_slots = event.max_teammates or 0
+    min_required = event.min_teammates
+
+    filled_teammates_count = 0
+    if form.teammates:
+        filled_teammates_count = len(
+            [n.strip() for n in form.teammates.split(",") if n.strip()]
+        )
+
+    # If this sport uses teams, a team name is required.
+    if max_slots > 0:
+        if not form.team_name or not form.team_name.strip():
+            raise HTTPException(
+                status_code=400,
+                detail="Team name is required for this sport.",
+            )
+
+    # Enforce minimum teammate count when configured.
+    if max_slots > 0 and min_required is not None:
+        if filled_teammates_count < min_required:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Please enter at least {min_required} teammates.",
+            )
+
+    # Enforce max teammate count (server-side safety).
+    if max_slots > 0 and filled_teammates_count > max_slots:
+        raise HTTPException(
+            status_code=400,
+            detail="Too many teammates provided for this sport.",
+        )
+
     # Enforce max participants cap per sport (per gender when separated_genders)
-    if event.max_participants is not None:
+    if (
+        event.max_participants is not None
+        or event.max_participants_male is not None
+        or event.max_participants_female is not None
+    ):
         base_query = db.query(FormSubmission).filter(
             FormSubmission.event_id == form.event_id,
             FormSubmission.sport == form.sport,
         )
         if event.separated_genders and form.gender:
             gender_lower = (form.gender or "").strip().lower()
+            cap_for_gender: Optional[int]
             if gender_lower in ("male", "man"):
+                cap_for_gender = (
+                    event.max_participants_male
+                    if event.max_participants_male is not None
+                    else event.max_participants
+                )
                 count_query = base_query.filter(
                     or_(
                         func.lower(FormSubmission.gender) == "male",
@@ -519,6 +732,11 @@ def submit_form(
                     )
                 )
             elif gender_lower in ("female", "woman"):
+                cap_for_gender = (
+                    event.max_participants_female
+                    if event.max_participants_female is not None
+                    else event.max_participants
+                )
                 count_query = base_query.filter(
                     or_(
                         func.lower(FormSubmission.gender) == "female",
@@ -526,22 +744,51 @@ def submit_form(
                     )
                 )
             else:
+                cap_for_gender = event.max_participants
                 count_query = base_query.filter(FormSubmission.gender == form.gender)
             current_count = count_query.count()
         else:
+            cap_for_gender = event.max_participants
             current_count = base_query.count()
 
-        if event.enable_waitlist and event.waitlist:
-            current_count -= event.max_participants
+        waitlist_enabled = bool(
+            event.enable_waitlist and (event.waitlist_max_participants or 0) > 0
+        )
+        waitlist_size = int(event.waitlist_max_participants or 0)
 
-        if (event.waitlist and current_count > (event.waitlist_max_participants or 0)) or ( current_count >= event.max_participants):
-            logger.info(
-                f"Event {form.event_id} sport {form.sport} reached max participants ({event.max_participants})."
-            )
-            raise HTTPException(
-                status_code=400,
-                detail="Registration for this sport is full. The participant cap has been reached.",
-            )
+        # If cap is unset, treat as unlimited.
+        if cap_for_gender is not None:
+            if current_count >= cap_for_gender:
+                # Cap reached: either place on waitlist (if enabled and not full) or reject.
+                if not waitlist_enabled:
+                    logger.info(
+                        f"Event {form.event_id} sport {form.sport} reached max participants ({cap_for_gender})."
+                    )
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Registration for this sport is full. The participant cap has been reached.",
+                    )
+
+                if event.separated_genders:
+                    # Separated mode: waitlist_max_participants is per gender cap overflow.
+                    if current_count >= (cap_for_gender + waitlist_size):
+                        logger.info(
+                            f"Event {form.event_id} sport {form.sport} waitlist is full for this gender (max {waitlist_size})."
+                        )
+                        raise HTTPException(
+                            status_code=400,
+                            detail="Registration for this sport is full. The waitlist is full for this gender.",
+                        )
+                else:
+                    # Non-separated: waitlist pool is total overflow above event cap.
+                    if current_count >= (cap_for_gender + waitlist_size):
+                        logger.info(
+                            f"Event {form.event_id} sport {form.sport} waitlist is full (max {waitlist_size})."
+                        )
+                        raise HTTPException(
+                            status_code=400,
+                            detail="Registration for this sport is full. The waitlist is full.",
+                        )
 
     logger.info(f"Creating form submission for event {form.event_id} ({event.name})")
     new_entry = FormSubmission(
@@ -550,6 +797,7 @@ def submit_form(
         gender=form.gender,
         name=form.name,
         teammates=form.teammates,
+        team_name=form.team_name,
         phone_number=form.phone_number,
         email=form.email,
     )

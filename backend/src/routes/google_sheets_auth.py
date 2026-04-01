@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from fastapi import APIRouter, Depends, Request
 from starlette.responses import JSONResponse
 from src.util.auth import google_sheets, admin_required
@@ -13,7 +14,10 @@ async def authorize_sheets(
 ):
     redirect_uri = request.url_for("sheets_callback")
     return await google_sheets.authorize_redirect(
-        request, redirect_uri, access_type="offline"
+        request,
+        redirect_uri,
+        access_type="offline",
+        prompt="consent",
     )
 
 
@@ -37,14 +41,15 @@ async def sheets_callback(
             status_code=400,
         )
 
-    env_path = ".env"
+    # Always write into the backend/.env used by the deployed app.
+    env_path = str(Path(__file__).resolve().parents[2] / ".env")
     lines = []
 
     if os.path.exists(env_path):
-        with open(env_path, "r") as f:
+        with open(env_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
-    with open(env_path, "w") as f:
+    with open(env_path, "w", encoding="utf-8") as f:
         found = False
         for line in lines:
             if line.startswith("GOOGLE_REFRESH_TOKEN="):

@@ -33,6 +33,7 @@ class UserResponse(UserBase):
 # ---------------------------
 class SponsorBase(BaseModel):
     name: str
+    tier: Optional[str] = None
     website: Optional[str] = None
     logo: Optional[str] = None
 
@@ -48,6 +49,27 @@ class SponsorResponse(SponsorBase):
         from_attributes = True
 
 
+class SponsorTierBase(BaseModel):
+    key: str
+    label: str
+    blurb: Optional[str] = None
+    columns: Optional[Annotated[int, Field(ge=1)]] = None
+    logo_max_width: Optional[Annotated[int, Field(ge=1)]] = None
+    sort_order: Optional[int] = None
+
+
+class SponsorTierCreate(SponsorTierBase):
+    key: Annotated[str, Field(min_length=1, max_length=255)]
+    label: Annotated[str, Field(min_length=1, max_length=255)]
+
+
+class SponsorTierResponse(SponsorTierBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
 # ---------------------------
 # ----- Event Schemas -------
 # ---------------------------
@@ -55,14 +77,18 @@ class EventBase(BaseModel):
     name: str
     description: Optional[str] = None
     date: Optional[datetype] = None
-    location: Optional[str] = None
     separated_genders: bool = False
     is_current: bool = False
-    teammates: Optional[int] = None
-    min_teammates: Optional[int] = 1 if (teammates is not None and teammates > 1) else None
+    max_teammates: Optional[Annotated[int, Field(ge=0)]] = None
+    # If set, signups must include >= min_teammates teammate names.
+    # If null, no minimum teammate count is enforced.
+    min_teammates: Optional[Annotated[int, Field(ge=0)]] = None
     max_participants: Optional[int] = None
+    max_participants_male: Optional[Annotated[int, Field(ge=0)]] = None
+    max_participants_female: Optional[Annotated[int, Field(ge=0)]] = None
     waitlist: Optional[bool] = False
     waitlist_max_participants: Optional[int] = None
+    whatsapp_link: Optional[Annotated[str, Field(max_length=1023)]] = None
 
     @field_validator("separated_genders", mode="before")
     @classmethod
@@ -75,14 +101,25 @@ class EventBase(BaseModel):
 class EventCreate(EventBase):
     name: Annotated[str, Field(min_length=2, max_length=100)]
     description: Optional[Annotated[str, Field(max_length=500)]] = None
-    teammates: Optional[Annotated[int, Field(ge=0)]] = None
+    max_teammates: Optional[Annotated[int, Field(ge=0)]] = None
+    min_teammates: Optional[Annotated[int, Field(ge=0)]] = None
+    whatsapp_link: Optional[Annotated[str, Field(max_length=1023)]] = None
     max_participants: Optional[Annotated[int, Field(ge=0)]] = None
+    max_participants_male: Optional[Annotated[int, Field(ge=0)]] = None
+    max_participants_female: Optional[Annotated[int, Field(ge=0)]] = None
+
 
     @model_validator(mode="before")
     @classmethod
-    def check_teammates_if_separated(cls, values):
-        if values.get("separated_genders") and not values.get("teammates"):
-            raise ValueError("teammates must be provided if separated_genders=True")
+    def check_min_teammates(cls, values):
+        max_teammates = values.get("max_teammates")
+        min_teammates = values.get("min_teammates")
+        if (
+            max_teammates is not None
+            and min_teammates is not None
+            and min_teammates > max_teammates
+        ):
+            raise ValueError("min_teammates must be <= max_teammates")
         return values
 
 
@@ -109,6 +146,8 @@ class FormBase(BaseModel):
     sport: str
     gender: Optional[str] = None
     name: str
+    # Team name is only relevant for events with max_teammates > 0.
+    team_name: Optional[Annotated[str, Field(min_length=1, max_length=255)]] = None
     teammates: Optional[str] = None
     phone_number: str
     email: str
@@ -119,6 +158,7 @@ class FormCreate(FormBase):
     sport: SportStr
     gender: Optional[GenderStr] = None
     name: NameStr
+    team_name: Optional[Annotated[str, Field(min_length=1, max_length=255)]] = None
     teammates: Optional[TeammatesStr] = None
     phone_number: PhoneNumber
     email: EmailStr

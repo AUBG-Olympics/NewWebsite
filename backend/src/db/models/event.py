@@ -17,14 +17,19 @@ class Event(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(1023), nullable=True)
     date: Mapped[Optional[date_type]] = mapped_column(DateTime)
-    location: Mapped[Optional[str]] = mapped_column(String(511), nullable=True)
     separated_genders: Mapped[bool] = mapped_column(Boolean, default=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
-    teammates: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    max_teammates: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    min_teammates: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     max_participants: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # When separated_genders=True, these override max_participants per gender if set.
+    max_participants_male: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    max_participants_female: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    whatsapp_link: Mapped[Optional[str]] = mapped_column(String(1023), nullable=True)
     enable_waitlist: Mapped[bool] = mapped_column(Boolean, default=True) # Wheather the waitlist is enabled for the event
     waitlist: Mapped[bool] = mapped_column(Boolean, default=False) # Wheather the participant's cap has been reached and we started filling the waitlist
-    waitlist_max_participants: Mapped[Optional[int]] = mapped_column(Boolean, nullable=True)
+    # Max participants to allow before waitlist begins filling.
+    waitlist_max_participants: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     # Relationship to submissions
     submissions: Mapped[List["FormSubmission"]] = relationship(

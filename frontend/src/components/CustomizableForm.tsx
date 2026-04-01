@@ -7,18 +7,23 @@ interface FormSubmissionPayload {
   event_id: number;
   sport: string;
   name: string;
+  team_name?: string;
   phone_number: string;
   email: string;
   teammates: string | null;
-  separated_genders?: boolean;
+  gender?: GenderSelection | null;
 }
 
 export interface CustomizableFormProps {
-  teammates?: number;
+  maxTeammates?: number;
+  minTeammates?: number | null;
   separated_genders?: boolean;
   eventId?: number;
   sport?: string;
-  description?:string;
+  description?: string;
+  waitlistEnabled?: boolean;
+  capacityIsFull?: boolean;
+  capacityInfo?: any;
   onSubmit?: (payload: {
     name: string;
     email: string;
@@ -26,6 +31,7 @@ export interface CustomizableFormProps {
     separated_genders?: boolean;
     genderSelection?: GenderSelection;
     teammates?: string[];
+    team_name?: string;
   }) => void;
 }
 
@@ -34,23 +40,71 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000
 const fieldStyles =
   "w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition";
 
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+function renderDescriptionWithLinks(text: string): React.ReactNode {
+  const value = (text || "").trim();
+  if (!value) return null;
+
+  const matches = Array.from(value.matchAll(urlRegex));
+  if (matches.length === 0) return value;
+
+  const nodes: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const m of matches) {
+    const url = m[0];
+    const index = m.index ?? 0;
+
+    if (index > lastIndex) {
+      nodes.push(value.slice(lastIndex, index));
+    }
+
+    nodes.push(
+      <a
+        key={`${url}-${index}`}
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="text-blue-800 underline"
+      >
+        RULES
+      </a>,
+    );
+
+    lastIndex = index + url.length;
+  }
+
+  if (lastIndex < value.length) {
+    nodes.push(value.slice(lastIndex));
+  }
+
+  return nodes;
+}
+
 const CustomizableForm: React.FC<CustomizableFormProps> = ({
-  teammates = 0,
+  maxTeammates = 0,
+  minTeammates = null,
   separated_genders = false,
   eventId,
   sport,
   description = "",
+  waitlistEnabled = false,
+  capacityIsFull = false,
+  capacityInfo,
   onSubmit,
 }) => {
-  const sanitizedTeammates = useMemo(
-    () => Math.max(0, Math.floor(teammates)),
-    [teammates],
+  const sanitizedMaxTeammates = useMemo(
+    () => Math.max(0, Math.floor(maxTeammates)),
+    [maxTeammates],
   );
 
   const [selectedGender, setSelectedGender] = useState<GenderSelection>("female");
+  const [hasUserSelectedGender, setHasUserSelectedGender] = useState(false);
   const [teammateNames, setTeammateNames] = useState<string[]>(
-    Array.from({ length: sanitizedTeammates }, () => ""),
+    Array.from({ length: sanitizedMaxTeammates }, () => ""),
   );
+  const [teamName, setTeamName] = useState("");
   const [formValues, setFormValues] = useState({
     name: "",
     email: "",
@@ -61,6 +115,50 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
+  const [isWaitlistMode, setIsWaitlistMode] = useState(false);
+
+  const isSelectedGenderWaitlist =
+    separated_genders === true
+      ? selectedGender === "male"
+        ? Boolean(capacityInfo?.male_waitlist)
+        : Boolean(capacityInfo?.female_waitlist)
+      : Boolean(capacityInfo?.waitlist);
+
+  const isSelectedGenderFull =
+    separated_genders === true
+      ? selectedGender === "male"
+        ? Boolean(capacityInfo?.male_is_full) && !isSelectedGenderWaitlist
+        : Boolean(capacityInfo?.female_is_full) && !isSelectedGenderWaitlist
+      : Boolean(capacityInfo?.full) && !isSelectedGenderWaitlist;
+
+  const maleClosed = Boolean(
+    separated_genders &&
+      capacityInfo?.male_is_full &&
+      !capacityInfo?.male_waitlist,
+  );
+  const femaleClosed = Boolean(
+    separated_genders &&
+      capacityInfo?.female_is_full &&
+      !capacityInfo?.female_waitlist,
+  );
+  const availableGenderOptions = (["female", "male"] as GenderSelection[]).filter(
+    (g) => (g === "male" ? !maleClosed : !femaleClosed),
+  );
+
+  // Keep waitlist banner in sync with currently selected gender.
+  useEffect(() => {
+    if (!capacityInfo) {
+      setIsWaitlistMode(Boolean(waitlistEnabled && capacityIsFull));
+      return;
+    }
+    setIsWaitlistMode(isSelectedGenderWaitlist);
+  }, [
+    capacityInfo,
+    isSelectedGenderWaitlist,
+    waitlistEnabled,
+    capacityIsFull,
+    selectedGender,
+  ]);
 
   const validateForm = (): string[] => {
     const errors: string[] = [];
@@ -91,12 +189,20 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
       }
     }
 
-    // teammates: require at least 5 names when event has teammate slots
-    const MIN_TEAMMATES = 5;
-    if (sanitizedTeammates > 0) {
-      const filledCount = teammateNames.filter((name) => name.trim().length > 0).length;
-      if (filledCount < MIN_TEAMMATES) {
-        errors.push(`Please enter at least ${MIN_TEAMMATES} teammate names.`);
+    if (sanitizedMaxTeammates > 0) {
+      const trimmedTeamName = teamName.trim();
+      if (trimmedTeamName.length === 0) {
+        errors.push("Team name is required for this sport.");
+      }
+
+      const filledCount = teammateNames.filter(
+        (name) => name.trim().length > 0,
+      ).length;
+
+      if (minTeammates !== null && minTeammates !== undefined) {
+        if (filledCount < minTeammates) {
+          errors.push(`Please enter at least ${minTeammates} teammate names.`);
+        }
       }
     }
     return errors;
@@ -104,18 +210,45 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
   useEffect(() => {
     setTeammateNames((prev) => {
-      if (prev.length === sanitizedTeammates) return prev;
+      if (prev.length === sanitizedMaxTeammates) return prev;
       const updated = [...prev];
-      if (sanitizedTeammates > prev.length) {
+      if (sanitizedMaxTeammates > prev.length) {
         updated.push(
-          ...Array.from({ length: sanitizedTeammates - prev.length }, () => ""),
+          ...Array.from(
+            { length: sanitizedMaxTeammates - prev.length },
+            () => "",
+          ),
         );
       } else {
-        updated.length = sanitizedTeammates;
+        updated.length = sanitizedMaxTeammates;
       }
       return updated;
     });
-  }, [sanitizedTeammates]);
+  }, [sanitizedMaxTeammates]);
+
+  // Choose a sensible default gender when only one cap still has room.
+  // Do this only before the user manually changes the selection.
+  useEffect(() => {
+    if (!separated_genders || hasUserSelectedGender || !capacityInfo) return;
+
+    const maleFull = Boolean(capacityInfo.male_is_full);
+    const femaleFull = Boolean(capacityInfo.female_is_full);
+
+    if (maleFull && !femaleFull) {
+      setSelectedGender("female");
+    } else if (femaleFull && !maleFull) {
+      setSelectedGender("male");
+    }
+  }, [separated_genders, hasUserSelectedGender, capacityInfo]);
+
+  // If current selected gender becomes unavailable, switch to the remaining available option.
+  useEffect(() => {
+    if (!separated_genders) return;
+    if (availableGenderOptions.length === 0) return;
+    if (!availableGenderOptions.includes(selectedGender)) {
+      setSelectedGender(availableGenderOptions[0]);
+    }
+  }, [separated_genders, availableGenderOptions, selectedGender]);
 
   const handleChange = (field: "name" | "email" | "phone", value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
@@ -145,11 +278,18 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     }
 
     try {
+      let submitAsWaitlist = isSelectedGenderWaitlist;
+
       // Map frontend data to backend schema format
-      const genderValue = separated_genders ? selectedGender : null;
-      const teammatesString = sanitizedTeammates > 0 && teammateNames.length > 0
-        ? teammateNames.filter(name => name.trim() !== "").join(", ")
-        : null;
+      const filledTeammates = teammateNames
+        .map((name) => name.trim())
+        .filter((name) => name.length > 0);
+      const teammatesString =
+        sanitizedMaxTeammates > 0
+          ? filledTeammates.length > 0
+            ? filledTeammates.join(", ")
+            : null
+          : null;
 
       // Only submit to API if eventId and sport are provided
       if (eventId && sport) {
@@ -160,15 +300,34 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
             `${API_BASE_URL}/api/forms/capacity/${eventId}?sport=${sportParam}`,
           );
           if (capRes.ok) {
-            const capData = await capRes.json();
-            if (capData.is_full) {
+            const capData: any = await capRes.json();
+            const selectedGenderFullFromCap =
+              separated_genders === true
+                ? selectedGender === "male"
+                  ? Boolean(capData.male_is_full)
+                  : Boolean(capData.female_is_full)
+                : Boolean(capData.full);
+            const selectedGenderWaitlistFromCap =
+              separated_genders === true
+                ? selectedGender === "male"
+                  ? Boolean(capData.male_waitlist)
+                  : Boolean(capData.female_waitlist)
+                : Boolean(capData.waitlist);
+
+            submitAsWaitlist = selectedGenderWaitlistFromCap;
+
+            if (selectedGenderFullFromCap && !selectedGenderWaitlistFromCap) {
               setIsSubmitting(false);
               setSubmitStatus({
                 type: "error",
                 message:
-                  "The participant cap has been filled. Registration for this sport is no longer available.",
+                  "The participant cap has been filled for your selected gender. Registration is no longer available.",
               });
               return;
+            }
+
+            if (selectedGenderWaitlistFromCap) {
+              setIsWaitlistMode(true);
             }
           }
         } catch (_e) {
@@ -181,12 +340,13 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           name: formValues.name,
           phone_number: formValues.phone,
           email: formValues.email,
+          team_name: sanitizedMaxTeammates > 0 ? teamName.trim() : undefined,
           teammates: teammatesString,
         };
 
         // Only include gender if separated_genders is true
-        if (separated_genders && genderValue) {
-          payload.separated_genders = true;
+        if (separated_genders) {
+          payload.gender = selectedGender;
         }
 
         // Submit to backend API
@@ -206,12 +366,15 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
         await response.json();
         setSubmitStatus({
           type: "success",
-          message: "Form submitted successfully! We'll be in touch soon.",
+          message: submitAsWaitlist
+            ? "Form submitted successfully! You’ve been added to the waitlist."
+            : "Form submitted successfully! We'll be in touch soon.",
         });
 
         // Reset form after successful submission
         setFormValues({ name: "", email: "", phone: "" });
-        setTeammateNames(Array.from({ length: sanitizedTeammates }, () => ""));
+        setTeamName("");
+        setTeammateNames(Array.from({ length: sanitizedMaxTeammates }, () => ""));
       }
 
       // Call custom onSubmit handler if provided
@@ -220,7 +383,8 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           ...formValues,
           separated_genders: separated_genders,
           genderSelection: separated_genders ? selectedGender : undefined,
-          teammates: sanitizedTeammates ? teammateNames : undefined,
+          teammates: sanitizedMaxTeammates ? teammateNames : undefined,
+          team_name: sanitizedMaxTeammates > 0 ? teamName : undefined,
         });
       }
     } catch (error) {
@@ -241,18 +405,35 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
         style={{ fontFamily: "'Lato', sans-serif" }}
       >
         <div className="text-center space-y-2">
-          <h2
-            className="text-3xl md:text-4xl text-orange-500 font-lilita"
-          >
-            {sport?.toUpperCase()}
-            <span className="ml-2 text-xl md:text-2xl text-red-600 font-lilita">
-              WAITLIST ONLY
-            </span>
-          </h2>
+          <div className="flex items-center justify-center gap-3">
+            <h2
+              className="text-3xl md:text-4xl text-orange-500 font-lilita"
+            >
+              {sport?.toUpperCase()}
+            </h2>
+            {isSelectedGenderWaitlist && (
+              <span className="inline-flex items-center rounded-full bg-orange-500 text-white text-xs font-bold px-3 py-1 border-2 border-black">
+                WAITLIST
+              </span>
+            )}
+            {isSelectedGenderFull && !isSelectedGenderWaitlist && (
+              <span className="inline-flex items-center rounded-full bg-red-600 text-white text-xs font-bold px-3 py-1 border-2 border-black">
+                FULL
+              </span>
+            )}
+          </div>
           <p className="text-blue-800 text-sm md:text-base max-w-xl mx-auto">
-            {description}
+            {renderDescriptionWithLinks(description)}
           </p>
         </div>
+
+        {isWaitlistMode ? (
+          <div className="w-full px-4 py-3 rounded-xl border-2 bg-orange-100 border-orange-400 text-orange-900">
+            <p className="text-sm font-semibold">
+              The cap is filled. Submissions are being added to the waitlist.
+            </p>
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <label className="flex flex-col gap-2 text-blue-900">
@@ -302,7 +483,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
               Select Gender
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {(["female", "male"] as GenderSelection[]).map((option) => (
+              {availableGenderOptions.map((option) => (
                 <label
                   key={option}
                   className={`cursor-pointer rounded-xl border-2 ${
@@ -316,11 +497,20 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
                     name="genderSelection"
                     value={option}
                     checked={selectedGender === option}
-                    onChange={() => setSelectedGender(option)}
+                    onChange={() => {
+                      setHasUserSelectedGender(true);
+                      setSelectedGender(option);
+                    }}
                     className="hidden"
                   />
                   <span className="text-blue-900">
-                    {option === "female" ? "Female" : "Male"}
+                    {option === "female"
+                      ? capacityInfo?.female_waitlist
+                        ? "Female (Waitlist)"
+                        : "Female"
+                      : capacityInfo?.male_waitlist
+                        ? "Male (Waitlist)"
+                        : "Male"}
                   </span>
                 </label>
               ))}
@@ -328,14 +518,29 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           </div>
         )}
 
-        {sanitizedTeammates > 0 && (
+        {sanitizedMaxTeammates > 0 && (
           <div className="space-y-3">
+            <label className="flex flex-col gap-2 text-blue-900">
+              <span className="text-sm font-semibold tracking-wide uppercase">
+                Team Name*
+              </span>
+              <input
+                className={fieldStyles}
+                type="text"
+                value={teamName}
+                onChange={(event) => setTeamName(event.target.value)}
+                placeholder="Enter your team name"
+              />
+            </label>
+
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold uppercase tracking-wide text-blue-900">
-                Teammates ({sanitizedTeammates})
+                Teammates ({sanitizedMaxTeammates})
               </span>
-              <span className="text-xs text-blue-500">
-                Min 5 teammates required
+              <span className="text-sm text-red-600">
+                {minTeammates !== null && minTeammates !== undefined
+                  ? `Min ${minTeammates} teammates required`
+                  : `Add up to ${sanitizedMaxTeammates} teammates`}
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -349,6 +554,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
                     handleTeammateChange(index, event.target.value)
                   }
                   placeholder={`Teammate ${index + 1}`}
+                  aria-required={false}
                 />
               ))}
             </div>

@@ -10,8 +10,12 @@ interface Event {
   date?: string;
   is_current: boolean;
   separated_genders?: boolean;
-  teammates?: number;
+  max_teammates?: number;
+  min_teammates?: number | null;
   max_participants?: number | null;
+  enable_waitlist?: boolean;
+  waitlist?: boolean;
+  waitlist_max_participants?: number | null;
 }
 
 const ChallengePage: React.FC = () => {
@@ -19,6 +23,7 @@ const ChallengePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFull, setIsFull] = useState(false);
+  const [capacityInfo, setCapacityInfo] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchCurrentEvent = async () => {
@@ -45,7 +50,8 @@ const ChallengePage: React.FC = () => {
           );
           if (capRes.ok) {
             const data = await capRes.json();
-            setIsFull(Boolean(data.is_full));
+            setIsFull(Boolean(data.full));
+            setCapacityInfo(data);
           }
         } catch (e) {
           console.error("Failed to fetch capacity status", e);
@@ -82,27 +88,50 @@ const ChallengePage: React.FC = () => {
     );
   }
 
+  const isWaitlist = Boolean(capacityInfo?.waitlist);
+  const waitlistEnabled = Boolean(
+    (capacityInfo?.waitlist_max_participants ?? 0) > 0,
+  );
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#e3772c] via-orange-200 to-orange-100">
-      {isFull ? (
+      {isFull && !isWaitlist ? (
         <div className="w-full flex justify-center py-16 px-4">
           <div className="max-w-3xl w-full bg-white/90 border-4 border-red-500 rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-8 md:p-12 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-red-600 mb-4">
               The cap has already been filled
             </h2>
             <p className="text-blue-900">
-              Registration for this event is no longer available. Please check back later or contact the organizers.
+              Registration for this event is no longer available.
             </p>
           </div>
         </div>
       ) : (
-        <CustomizableForm
-          teammates={event.teammates || 0}
-          separated_genders={event.separated_genders}
-          eventId={event.id}
-          sport={event.name}
-          description={event.description || ""}
-        />
+        <>
+          {isWaitlist ? (
+            <div className="w-full flex justify-center pt-10 px-4">
+              <div className="max-w-3xl w-full bg-white/90 border-4 border-orange-500 rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-6 md:p-8 text-center">
+                <h2 className="text-xl md:text-2xl font-bold text-orange-700 mb-2">
+                  Cap filled — you are signing up for the waitlist
+                </h2>
+                <p className="text-blue-900">
+                  Please submit the form below to join the waitlist.
+                </p>
+              </div>
+            </div>
+          ) : null}
+          <CustomizableForm
+            maxTeammates={event.max_teammates || 0}
+            minTeammates={event.min_teammates ?? null}
+            separated_genders={event.separated_genders}
+            eventId={event.id}
+            sport={event.name}
+            description={event.description || ""}
+            waitlistEnabled={waitlistEnabled}
+            capacityIsFull={isFull}
+            capacityInfo={capacityInfo}
+          />
+        </>
       )}
     </section>
   );

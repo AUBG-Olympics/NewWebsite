@@ -7,7 +7,8 @@ from fastapi.security import HTTPBearer
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import JSONResponse
 
-from src.routes import auth, events, forms, sponsors, google_sheets_auth
+from src.routes import auth, events, forms, sponsors, google_sheets_auth, settings
+from src.routes import sponsor_tiers
 
 # Configure logging
 logging.basicConfig(
@@ -65,6 +66,8 @@ async def catch_all_exceptions(request, exc):
 # Routers
 app.include_router(auth.router)
 app.include_router(sponsors.router)
+app.include_router(sponsor_tiers.router)
+app.include_router(settings.router)
 app.include_router(events.router)
 app.include_router(forms.router)
 # Enable ONLY if the Refresh token in the .env file is revoked

@@ -1,4 +1,6 @@
 from typing import List, Optional
+import os
+from pathlib import Path
 import logging
 
 from google.oauth2.credentials import Credentials
@@ -25,14 +27,17 @@ class GoogleSheetsService:
     ]
 
     def __init__(self):
-        self.config = Config(".env")
+        # Always load from backend/.env (not server working directory).
+        env_file_path = str(Path(__file__).resolve().parents[2] / ".env")
+        self.config = Config(env_file_path)
         try:
             self._creds = Credentials(
                 token=None,
-                refresh_token=self.config("GOOGLE_REFRESH_TOKEN"),
+                refresh_token=os.getenv("GOOGLE_REFRESH_TOKEN") or self.config("GOOGLE_REFRESH_TOKEN"),
                 token_uri="https://oauth2.googleapis.com/token",
-                client_id=self.config("GOOGLE_CLIENT_ID"),
-                client_secret=self.config("GOOGLE_CLIENT_SECRET"),
+                client_id=os.getenv("GOOGLE_CLIENT_ID") or self.config("GOOGLE_CLIENT_ID"),
+                client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
+                or self.config("GOOGLE_CLIENT_SECRET"),
                 scopes=self.SCOPES,
             )
 

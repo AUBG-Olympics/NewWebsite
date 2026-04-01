@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuthHeaders, API_BASE_URL } from "../../util/auth";
+import { API_BASE_URL, apiFetch } from "../../util/auth";
 
 interface Challenge {
   id?: number;
   event_id: number;
   sport: string;
-  gender: "both" | "female" | "male";
-  teammates?: number;
+  gender: "together" | "seperate";
+  max_teammates?: number;
+  min_teammates?: number | null;
+  whatsapp_link?: string | null;
   name?: string;
   description?: string;
   max_participants?: number | null;
+  max_participants_male?: number | null;
+  max_participants_female?: number | null;
+  waitlist_max_participants?: number | null;
 }
 
 const DDay: React.FC = () => {
@@ -19,17 +24,49 @@ const DDay: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [ddayEnabled, setDdayEnabled] = useState(false);
+  const [ddayEnabledLoading, setDdayEnabledLoading] = useState(true);
 
   useEffect(() => {
     fetchChallenges();
+    fetchDdayEnabled();
   }, []);
+
+  const fetchDdayEnabled = async () => {
+    try {
+      setDdayEnabledLoading(true);
+      const res = await apiFetch(`${API_BASE_URL}/api/settings/dday-enabled`);
+      if (!res.ok) throw new Error("Failed to load D-Day setting");
+      const data = await res.json();
+      setDdayEnabled(Boolean(data.dday_enabled));
+    } catch (e) {
+      console.error("Failed to load dday enabled setting", e);
+    } finally {
+      setDdayEnabledLoading(false);
+    }
+  };
+
+  const saveDdayEnabled = async (enabled: boolean) => {
+    try {
+      setDdayEnabled(enabled);
+      const res = await apiFetch(
+        `${API_BASE_URL}/api/settings/dday-enabled?enabled=${enabled ? "true" : "false"}`,
+        {
+          method: "PUT",
+        },
+      );
+      if (!res.ok) throw new Error("Failed to save D-Day setting");
+    } catch (e) {
+      console.error("Failed to save dday enabled setting", e);
+      alert("Failed to save D-Day navbar setting");
+      await fetchDdayEnabled();
+    }
+  };
 
   const fetchChallenges = async () => {
     try {
       // Fetch events (challenges) from backend
-      const response = await fetch(`${API_BASE_URL}/api/events/`, {
-        headers: getAuthHeaders(),
-      });
+      const response = await apiFetch(`${API_BASE_URL}/api/events/`);
       if (!response.ok) throw new Error("Failed to fetch challenges");
       const events = await response.json();
       // Convert events to challenges format
@@ -37,11 +74,16 @@ const DDay: React.FC = () => {
         id: event.id,
         event_id: event.id,
         sport: event.name || "General",
-        gender: event.gender || "both",
-        teammates: event.teammates || 0,
+        gender: event.separated_genders ? "seperate" : "together",
+        max_teammates: event.max_teammates || 0,
+        min_teammates: event.min_teammates ?? null,
+        whatsapp_link: event.whatsapp_link ?? null,
         name: event.name,
         description: event.description,
         max_participants: event.max_participants ?? null,
+        max_participants_male: event.max_participants_male ?? null,
+        max_participants_female: event.max_participants_female ?? null,
+        waitlist_max_participants: event.waitlist_max_participants ?? null,
       }));
       setChallenges(challengesData);
     } catch (error) {
@@ -55,9 +97,14 @@ const DDay: React.FC = () => {
     setEditingChallenge({
       event_id: 0,
       sport: "",
-      gender: "both",
-      teammates: 0,
+      gender: "together",
+      max_teammates: 0,
+      min_teammates: null,
+      whatsapp_link: "",
       max_participants: null,
+      max_participants_male: null,
+      max_participants_female: null,
+      waitlist_max_participants: null,
     });
     setShowForm(true);
   };
@@ -71,9 +118,8 @@ const DDay: React.FC = () => {
     if (!confirm("Are you sure you want to delete this challenge?")) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/events/${id}`, {
+      const response = await apiFetch(`${API_BASE_URL}/api/events/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error("Failed to delete challenge");
       await fetchChallenges();
@@ -92,29 +138,51 @@ const DDay: React.FC = () => {
         description: editingChallenge.description || "",
         date: null,
         is_current: false,
-        gender: editingChallenge.gender,
-        teammates: editingChallenge.teammates || 0,
+        separated_genders: editingChallenge.gender === "seperate",
+        max_teammates: editingChallenge.max_teammates || 0,
+        min_teammates: editingChallenge.min_teammates ?? null,
+        whatsapp_link: editingChallenge.whatsapp_link || null,
         max_participants:
-          editingChallenge.max_participants !== undefined &&
-          editingChallenge.max_participants !== null &&
-          !Number.isNaN(Number(editingChallenge.max_participants))
-            ? Math.max(0, Number(editingChallenge.max_participants))
+          editingChallenge.gender === "seperate"
+            ? null
+            : editingChallenge.max_participants !== undefined &&
+                editingChallenge.max_participants !== null &&
+                !Number.isNaN(Number(editingChallenge.max_participants))
+              ? Math.max(0, Number(editingChallenge.max_participants))
+              : null,
+        max_participants_male:
+          editingChallenge.gender === "seperate" &&
+          editingChallenge.max_participants_male !== undefined &&
+          editingChallenge.max_participants_male !== null &&
+          !Number.isNaN(Number(editingChallenge.max_participants_male))
+            ? Math.max(0, Number(editingChallenge.max_participants_male))
+            : null,
+        max_participants_female:
+          editingChallenge.gender === "seperate" &&
+          editingChallenge.max_participants_female !== undefined &&
+          editingChallenge.max_participants_female !== null &&
+          !Number.isNaN(Number(editingChallenge.max_participants_female))
+            ? Math.max(0, Number(editingChallenge.max_participants_female))
+            : null,
+        waitlist_max_participants:
+          editingChallenge.waitlist_max_participants !== undefined &&
+          editingChallenge.waitlist_max_participants !== null &&
+          !Number.isNaN(Number(editingChallenge.waitlist_max_participants))
+            ? Math.max(0, Number(editingChallenge.waitlist_max_participants))
             : null,
       };
 
       let response;
       if (editingChallenge.id) {
         // Update existing
-        response = await fetch(`${API_BASE_URL}/api/events/${editingChallenge.id}`, {
+        response = await apiFetch(`${API_BASE_URL}/api/events/${editingChallenge.id}`, {
           method: "PUT",
-          headers: getAuthHeaders(),
           body: JSON.stringify(eventData),
         });
       } else {
         // Create new
-        response = await fetch(`${API_BASE_URL}/api/events/`, {
+        response = await apiFetch(`${API_BASE_URL}/api/events/`, {
           method: "POST",
-          headers: getAuthHeaders(),
           body: JSON.stringify(eventData),
         });
       }
@@ -165,6 +233,27 @@ const DDay: React.FC = () => {
             </button>
           </div>
 
+          <div className="mb-8 flex items-center justify-between p-4 bg-yellow-50 rounded-xl border-2 border-yellow-300">
+            <div>
+              <label className="text-lg font-semibold text-blue-900">
+                Enable D-Day Button
+              </label>
+              <p className="text-sm text-blue-700">
+                Show or hide the “D-Day” link in the navigation bar
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={ddayEnabled}
+                disabled={ddayEnabledLoading}
+                onChange={(e) => saveDdayEnabled(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-yellow-400"></div>
+            </label>
+          </div>
+
           {showForm && editingChallenge && (
             <div className="mb-8 p-6 bg-blue-50 rounded-xl border-2 border-blue-200">
               <h2 className="text-2xl font-bold text-blue-900 mb-4">
@@ -194,7 +283,7 @@ const DDay: React.FC = () => {
                     onChange={(e) =>
                       setEditingChallenge({
                         ...editingChallenge,
-                        gender: e.target.value as "both" | "female" | "male",
+                        gender: e.target.value as "together" | "seperate",
                       })
                     }
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
@@ -205,15 +294,16 @@ const DDay: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">
-                    Number of Teammates
+                    Max Teammates
                   </label>
                   <input
-                    type="text"
-                    value={editingChallenge.teammates || 0}
+                    type="number"
+                    min={0}
+                    value={editingChallenge.max_teammates || 0}
                     onChange={(e) =>
                       setEditingChallenge({
                         ...editingChallenge,
-                        teammates: parseInt(e.target.value) || 0,
+                        max_teammates: parseInt(e.target.value) || 0,
                       })
                     }
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
@@ -221,16 +311,118 @@ const DDay: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">
-                    Max participants (optional)
+                    Min Teammates (optional)
                   </label>
                   <input
                     type="number"
                     min={0}
-                    value={editingChallenge.max_participants ?? ""}
+                    value={editingChallenge.min_teammates ?? ""}
                     onChange={(e) =>
                       setEditingChallenge({
                         ...editingChallenge,
-                        max_participants:
+                        min_teammates:
+                          e.target.value === ""
+                            ? null
+                            : Math.max(0, parseInt(e.target.value, 10) || 0),
+                      })
+                    }
+                    className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                    placeholder="e.g. 5 (leave empty for no minimum)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    WhatsApp Link (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingChallenge.whatsapp_link ?? ""}
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        whatsapp_link: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                    placeholder="https://chat.whatsapp.com/..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    Max participants (optional)
+                  </label>
+                  {editingChallenge.gender === "seperate" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <label className="text-sm font-semibold text-blue-900">
+                        Male cap
+                        <input
+                          type="number"
+                          min={0}
+                          value={editingChallenge.max_participants_male ?? ""}
+                          onChange={(e) =>
+                            setEditingChallenge({
+                              ...editingChallenge,
+                              max_participants_male:
+                                e.target.value === ""
+                                  ? null
+                                  : Math.max(0, parseInt(e.target.value, 10) || 0),
+                            })
+                          }
+                          className="mt-2 w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                          placeholder="e.g. 16"
+                        />
+                      </label>
+                      <label className="text-sm font-semibold text-blue-900">
+                        Female cap
+                        <input
+                          type="number"
+                          min={0}
+                          value={editingChallenge.max_participants_female ?? ""}
+                          onChange={(e) =>
+                            setEditingChallenge({
+                              ...editingChallenge,
+                              max_participants_female:
+                                e.target.value === ""
+                                  ? null
+                                  : Math.max(0, parseInt(e.target.value, 10) || 0),
+                            })
+                          }
+                          className="mt-2 w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                          placeholder="e.g. 16"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <input
+                      type="number"
+                      min={0}
+                      value={editingChallenge.max_participants ?? ""}
+                      onChange={(e) =>
+                        setEditingChallenge({
+                          ...editingChallenge,
+                          max_participants:
+                            e.target.value === ""
+                              ? null
+                              : Math.max(0, parseInt(e.target.value, 10) || 0),
+                        })
+                      }
+                      className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                      placeholder="e.g. 16 (leave empty for no cap)"
+                    />
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    Waitlist amount (optional)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editingChallenge.waitlist_max_participants ?? ""}
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        waitlist_max_participants:
                           e.target.value === ""
                             ? null
                             : Math.max(0, parseInt(e.target.value, 10) || 0),
@@ -293,20 +485,49 @@ const DDay: React.FC = () => {
                         <span>
                           <strong>Gender:</strong> {challenge.gender}
                         </span>
-                        {challenge.teammates !== undefined && (
+                        {challenge.max_teammates !== undefined && (
                           <span>
-                            <strong>Teammates:</strong> {challenge.teammates}
+                            <strong>Max Teammates:</strong> {challenge.max_teammates}
                           </span>
                         )}
+                        {challenge.min_teammates !== null &&
+                          challenge.min_teammates !== undefined && (
+                            <span>
+                              <strong>Min Teammates:</strong>{" "}
+                              {challenge.min_teammates}
+                            </span>
+                          )}
                         {challenge.max_participants != null && (
                           <span>
                             <strong>Max participants:</strong> {challenge.max_participants}
                           </span>
                         )}
+                        {challenge.gender === "seperate" &&
+                          (challenge.max_participants_male != null ||
+                            challenge.max_participants_female != null) && (
+                            <>
+                              {challenge.max_participants_male != null ? (
+                                <span>
+                                  <strong>Male cap:</strong>{" "}
+                                  {challenge.max_participants_male}
+                                </span>
+                              ) : null}
+                              {challenge.max_participants_female != null ? (
+                                <span>
+                                  <strong>Female cap:</strong>{" "}
+                                  {challenge.max_participants_female}
+                                </span>
+                              ) : null}
+                            </>
+                          )}
+                        {challenge.waitlist_max_participants != null && (
+                          <span>
+                            <strong>Waitlist amount:</strong>{" "}
+                            {challenge.waitlist_max_participants}
+                          </span>
+                        )}
                       </div>
-                      {challenge.description && (
-                        <p className="mt-2 text-blue-800">{challenge.description}</p>
-                      )}
+                      {/* Description intentionally hidden on the grid card */}
                     </div>
                     <div className="flex gap-2 md:flex-col md:items-end">
                       <button
