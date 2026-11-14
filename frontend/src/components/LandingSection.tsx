@@ -12,7 +12,7 @@ const LandingSection: React.FC = () => (
     <div
       className="
         h-[100vh] shadow-lg flex flex-col items-center justify-center border-8 border-white relative z-10 rounded-b-3xl
-        bg-[url('/assets/background6.png')] bg-no-repeat
+        bg-[url('/assets/background7.png')] bg-no-repeat
         bg-[length:150%] md:bg-cover
         bg-[position:90%_center] md:bg-center
       "

@@ -105,6 +105,13 @@ const DDayPage: React.FC = () => {
           <p className="text-blue-700 text-lg" style={{ fontFamily: "'Lato', sans-serif" }}>
             Choose an event to register
           </p>
+          <button
+            type="button"
+            onClick={() => navigate("/dday/schedule")}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl border-2 border-blue-900 bg-white px-5 py-2.5 text-blue-900 font-semibold hover:bg-blue-50 transition-colors"
+          >
+            View Schedule
+          </button>
         </div>
 
         {events.length === 0 ? (
@@ -112,7 +119,8 @@ const DDayPage: React.FC = () => {
             <p className="text-lg">No events available at this time.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {events.map((event) => (
               (() => {
                 const cap = capacityByEventId[event.id];
@@ -178,7 +186,8 @@ const DDayPage: React.FC = () => {
                 );
               })()
             ))}
-          </div>
+            </div>
+          </>
         )}
       </div>
     </section>

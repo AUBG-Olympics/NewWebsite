@@ -117,6 +117,16 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
   }>({ type: null, message: "" });
   const [isWaitlistMode, setIsWaitlistMode] = useState(false);
 
+  const genderOptions: GenderSelection[] = ["female", "male"];
+
+  const isGenderFull = (gender: GenderSelection) => {
+    if (!separated_genders) return false;
+
+    return gender === "male"
+      ? Boolean(capacityInfo?.male_is_full) && !Boolean(capacityInfo?.male_waitlist)
+      : Boolean(capacityInfo?.female_is_full) && !Boolean(capacityInfo?.female_waitlist);
+  };
+
   const isSelectedGenderWaitlist =
     separated_genders === true
       ? selectedGender === "male"
@@ -130,20 +140,9 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
         ? Boolean(capacityInfo?.male_is_full) && !isSelectedGenderWaitlist
         : Boolean(capacityInfo?.female_is_full) && !isSelectedGenderWaitlist
       : Boolean(capacityInfo?.full) && !isSelectedGenderWaitlist;
-
-  const maleClosed = Boolean(
-    separated_genders &&
-      capacityInfo?.male_is_full &&
-      !capacityInfo?.male_waitlist,
-  );
-  const femaleClosed = Boolean(
-    separated_genders &&
-      capacityInfo?.female_is_full &&
-      !capacityInfo?.female_waitlist,
-  );
-  const availableGenderOptions = (["female", "male"] as GenderSelection[]).filter(
-    (g) => (g === "male" ? !maleClosed : !femaleClosed),
-  );
+      
+  const isSubmitDisabled =
+    isSubmitting || (separated_genders === true && isSelectedGenderFull);
 
   // Keep waitlist banner in sync with currently selected gender.
   useEffect(() => {
@@ -169,19 +168,16 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     }
 
     const trimmedEmail = formValues.email.trim();
-    // Basic email validation to roughly match Pydantic's EmailStr
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       errors.push("Please enter a valid email address.");
     }
 
-    // Match backend phone_number validator: 10–15 digits, ignoring other characters
     const phoneDigits = formValues.phone.replace(/\D/g, "");
     if (phoneDigits.length < 10 || phoneDigits.length > 15) {
       errors.push("Phone number must be 10–15 digits (numbers only).");
     }
 
-    // sport backend constraint: 2–50 chars
     if (sport) {
       const trimmedSport = sport.trim();
       if (trimmedSport.length < 2 || trimmedSport.length > 50) {
@@ -241,15 +237,6 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     }
   }, [separated_genders, hasUserSelectedGender, capacityInfo]);
 
-  // If current selected gender becomes unavailable, switch to the remaining available option.
-  useEffect(() => {
-    if (!separated_genders) return;
-    if (availableGenderOptions.length === 0) return;
-    if (!availableGenderOptions.includes(selectedGender)) {
-      setSelectedGender(availableGenderOptions[0]);
-    }
-  }, [separated_genders, availableGenderOptions, selectedGender]);
-
   const handleChange = (field: "name" | "email" | "phone", value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
   };
@@ -264,6 +251,16 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (separated_genders && isSelectedGenderFull) {
+      setSubmitStatus({
+        type: "error",
+        message:
+          "The selected gender category is full. Please choose another option.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: "" });
 
@@ -280,7 +277,6 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     try {
       let submitAsWaitlist = isSelectedGenderWaitlist;
 
-      // Map frontend data to backend schema format
       const filledTeammates = teammateNames
         .map((name) => name.trim())
         .filter((name) => name.length > 0);
@@ -291,9 +287,7 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
             : null
           : null;
 
-      // Only submit to API if eventId and sport are provided
       if (eventId && sport) {
-        // Re-check capacity before submit (cap may have filled while user was filling the form)
         try {
           const sportParam = encodeURIComponent(sport);
           const capRes = await fetch(
@@ -344,12 +338,10 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           teammates: teammatesString,
         };
 
-        // Only include gender if separated_genders is true
         if (separated_genders) {
           payload.gender = selectedGender;
         }
 
-        // Submit to backend API
         const response = await fetch(`${API_BASE_URL}/api/forms/`, {
           method: "POST",
           headers: {
@@ -371,13 +363,11 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
             : "Form submitted successfully! We'll be in touch soon.",
         });
 
-        // Reset form after successful submission
         setFormValues({ name: "", email: "", phone: "" });
         setTeamName("");
         setTeammateNames(Array.from({ length: sanitizedMaxTeammates }, () => ""));
       }
 
-      // Call custom onSubmit handler if provided
       if (onSubmit) {
         onSubmit({
           ...formValues,
@@ -435,6 +425,14 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           </div>
         ) : null}
 
+        {separated_genders === true && isSelectedGenderFull && (
+          <div className="w-full px-4 py-3 rounded-xl border-2 bg-red-100 border-red-400 text-red-800">
+            <p className="text-sm font-semibold">
+              The selected gender category is full. Please choose another option.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <label className="flex flex-col gap-2 text-blue-900">
             <span className="text-sm font-semibold tracking-wide uppercase">
@@ -483,37 +481,45 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
               Select Gender
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {availableGenderOptions.map((option) => (
-                <label
-                  key={option}
-                  className={`cursor-pointer rounded-xl border-2 ${
-                    selectedGender === option
-                      ? "border-yellow-400 bg-yellow-100"
-                      : "border-blue-200 bg-white"
-                  } px-4 py-3 flex items-center justify-center text-sm font-semibold uppercase tracking-wide`}
-                >
-                  <input
-                    type="radio"
-                    name="genderSelection"
-                    value={option}
-                    checked={selectedGender === option}
-                    onChange={() => {
-                      setHasUserSelectedGender(true);
-                      setSelectedGender(option);
-                    }}
-                    className="hidden"
-                  />
-                  <span className="text-blue-900">
-                    {option === "female"
-                      ? capacityInfo?.female_waitlist
-                        ? "Female (Waitlist)"
-                        : "Female"
-                      : capacityInfo?.male_waitlist
-                        ? "Male (Waitlist)"
-                        : "Male"}
-                  </span>
-                </label>
-              ))}
+              {genderOptions.map((option) => {
+                const optionFull = isGenderFull(option);
+                const optionWaitlist =
+                  option === "male"
+                    ? Boolean(capacityInfo?.male_waitlist)
+                    : Boolean(capacityInfo?.female_waitlist);
+
+                return (
+                  <label
+                    key={option}
+                    className={`cursor-pointer rounded-xl border-2 ${
+                      selectedGender === option
+                        ? "border-yellow-400 bg-yellow-100"
+                        : "border-blue-200 bg-white"
+                    } px-4 py-3 flex items-center justify-center text-sm font-semibold uppercase tracking-wide`}
+                  >
+                    <input
+                      type="radio"
+                      name="genderSelection"
+                      value={option}
+                      checked={selectedGender === option}
+                      onChange={() => {
+                        setHasUserSelectedGender(true);
+                        setSelectedGender(option);
+                      }}
+                      className="hidden"
+                    />
+                    <span className="text-blue-900 flex items-center gap-1">
+                      <span>
+                        {option === "female" ? "Female" : "Male"}
+                        {optionWaitlist ? " (Waitlist)" : ""}
+                      </span>
+                      {optionFull && (
+                        <span className="text-red-600 font-bold">- FULL</span>
+                      )}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         )}
@@ -575,9 +581,9 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitDisabled}
           className={`w-full px-6 py-4 bg-yellow-400 text-blue-900 font-bold uppercase tracking-[0.2em] rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] transition ${
-            isSubmitting
+            isSubmitDisabled
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-yellow-300"
           }`}
@@ -590,4 +596,3 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 };
 
 export default CustomizableForm;
-
