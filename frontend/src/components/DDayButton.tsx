@@ -2,6 +2,10 @@ import React from "react";
 import { DotLottieReact, type Data } from "@lottiefiles/dotlottie-react";
 
 type FlameButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  /** Optional label overriding the button children. */
+  label?: React.ReactNode;
+  /** Vertical flame offset as a percentage. */
+  flameTranslateY?: number;
   /** Lottie JSON object (imported) */
   animationData?: object;
   /** Or a URL/path to a .lottie or .json file */
@@ -14,11 +18,13 @@ type FlameButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const FlameButton: React.FC<FlameButtonProps> = ({
   children,
+  label,
   className = "",
   animationData,
   animationPath,
   flameScale = 2,
   hoverOnly = true,
+  flameTranslateY = -40,
   onMouseEnter,
   onMouseLeave,
   ...rest
@@ -57,7 +63,7 @@ const FlameButton: React.FC<FlameButtonProps> = ({
         <div
           className="absolute inset-0 h-full w-full origin-center"
           style={{
-            transform: `translateY(-40%) scale(${flameScale})`,
+            transform: `translateY(${flameTranslateY}%) scale(${flameScale})`,
             mixBlendMode: "screen",
             filter: "saturate(125%)",
           }}
@@ -81,7 +87,7 @@ const FlameButton: React.FC<FlameButtonProps> = ({
         </div>
       </div>
 
-      <span className="relative z-10 inline-flex items-center gap-2">{children}</span>
+      <span className="relative z-10 inline-flex items-center gap-2">{label ?? children}</span>
     </button>
   );
 };

@@ -133,6 +133,6 @@ button:focus-visible {
 
 .sponsor-marquee-track {
   width: max-content;
-  animation: sponsor-marquee 30s linear infinite;
+  animation: sponsor-marquee 45s linear infinite;
 }
 

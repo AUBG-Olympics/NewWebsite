@@ -1,54 +1,35 @@
-# React + TypeScript + Vite
+# AUBG Olympics frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19, TypeScript and Vite. Editable application code lives in `src/`; static files live in `public/`. `dist/` is generated output for hosting.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```sh
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+For a local backend, put `VITE_API_BASE_URL=http://localhost:4000` in `.env.development.local`. This variable is public frontend configuration. Never put secrets in `VITE_*` variables.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Production build and hosting
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```sh
+npm ci
+npm run build
 ```
+
+`.env.production` records the deployed API address, `https://api.aubgolympics.com`. Vite embeds it at build time. Environment variables or `.env.production.local` can override it intentionally.
+
+Upload the **contents** of `dist/` to the hosting document root, including the hidden `.htaccess` file. The Apache rewrite rules allow direct links such as `/dday/schedule` to load the React app. Keep a backup of the previous deployment before replacing it.
+
+Make future changes in this repository, commit them, and rebuild. Changes made directly to hosted bundles will not flow back into source control. Events, capacity, sponsors and public settings also depend on the separately deployed API/database.
+
+## Recovery verification
+
+```sh
+npm run test:recovery
+npm run build
+node scripts/compare-deployment.mjs /path/to/downloaded/hosting/root
+```
+
+The last command requires the preserved hosting snapshot, not a running website. See [RECOVERY.md](RECOVERY.md) for provenance, restored changes and validation limits.

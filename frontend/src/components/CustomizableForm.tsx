@@ -117,6 +117,14 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
   }>({ type: null, message: "" });
   const [isWaitlistMode, setIsWaitlistMode] = useState(false);
 
+  const genderOptions: GenderSelection[] = ["female", "male"];
+  const isGenderClosed = (gender: GenderSelection): boolean => {
+    if (!separated_genders) return false;
+    return gender === "male"
+      ? Boolean(capacityInfo?.male_is_full) && !capacityInfo?.male_waitlist
+      : Boolean(capacityInfo?.female_is_full) && !capacityInfo?.female_waitlist;
+  };
+
   const isSelectedGenderWaitlist =
     separated_genders === true
       ? selectedGender === "male"
@@ -131,19 +139,8 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
         : Boolean(capacityInfo?.female_is_full) && !isSelectedGenderWaitlist
       : Boolean(capacityInfo?.full) && !isSelectedGenderWaitlist;
 
-  const maleClosed = Boolean(
-    separated_genders &&
-      capacityInfo?.male_is_full &&
-      !capacityInfo?.male_waitlist,
-  );
-  const femaleClosed = Boolean(
-    separated_genders &&
-      capacityInfo?.female_is_full &&
-      !capacityInfo?.female_waitlist,
-  );
-  const availableGenderOptions = (["female", "male"] as GenderSelection[]).filter(
-    (g) => (g === "male" ? !maleClosed : !femaleClosed),
-  );
+  const isSubmitDisabled =
+    isSubmitting || (separated_genders === true && isSelectedGenderFull);
 
   // Keep waitlist banner in sync with currently selected gender.
   useEffect(() => {
@@ -241,15 +238,6 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
     }
   }, [separated_genders, hasUserSelectedGender, capacityInfo]);
 
-  // If current selected gender becomes unavailable, switch to the remaining available option.
-  useEffect(() => {
-    if (!separated_genders) return;
-    if (availableGenderOptions.length === 0) return;
-    if (!availableGenderOptions.includes(selectedGender)) {
-      setSelectedGender(availableGenderOptions[0]);
-    }
-  }, [separated_genders, availableGenderOptions, selectedGender]);
-
   const handleChange = (field: "name" | "email" | "phone", value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
   };
@@ -264,6 +252,13 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    if (separated_genders && isSelectedGenderFull) {
+      setSubmitStatus({
+        type: "error",
+        message: "The selected gender category is full. Please choose another option.",
+      });
+      return;
+    }
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: "" });
 
@@ -435,6 +430,14 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
           </div>
         ) : null}
 
+        {separated_genders === true && isSelectedGenderFull && (
+          <div className="w-full px-4 py-3 rounded-xl border-2 bg-red-100 border-red-400 text-red-800">
+            <p className="text-sm font-semibold">
+              The selected gender category is full. Please choose another option.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <label className="flex flex-col gap-2 text-blue-900">
             <span className="text-sm font-semibold tracking-wide uppercase">
@@ -483,7 +486,12 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
               Select Gender
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {availableGenderOptions.map((option) => (
+              {genderOptions.map((option) => {
+                const closed = isGenderClosed(option);
+                const waitlist = option === "male"
+                  ? Boolean(capacityInfo?.male_waitlist)
+                  : Boolean(capacityInfo?.female_waitlist);
+                return (
                 <label
                   key={option}
                   className={`cursor-pointer rounded-xl border-2 ${
@@ -503,17 +511,16 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
                     }}
                     className="hidden"
                   />
-                  <span className="text-blue-900">
-                    {option === "female"
-                      ? capacityInfo?.female_waitlist
-                        ? "Female (Waitlist)"
-                        : "Female"
-                      : capacityInfo?.male_waitlist
-                        ? "Male (Waitlist)"
-                        : "Male"}
+                  <span className="text-blue-900 flex items-center gap-1">
+                    <span>
+                      {option === "female" ? "Female" : "Male"}
+                      {waitlist ? " (Waitlist)" : ""}
+                    </span>
+                    {closed && <span className="text-red-600 font-bold">- FULL</span>}
                   </span>
                 </label>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -575,9 +582,9 @@ const CustomizableForm: React.FC<CustomizableFormProps> = ({
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitDisabled}
           className={`w-full px-6 py-4 bg-yellow-400 text-blue-900 font-bold uppercase tracking-[0.2em] rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] transition ${
-            isSubmitting
+            isSubmitDisabled
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-yellow-300"
           }`}
