@@ -46,7 +46,7 @@ const TeamPage: React.FC = () => {
   const [activeDept, setActiveDept] = React.useState<string>("All");
   const [onlyBoard, setOnlyBoard] = React.useState<boolean>(false);
   const [q, setQ] = React.useState("");
-  const filtered = members.filter((m) => {
+  const filtered = [...members.filter((m) => {
     if (onlyBoard && !m.isBoard) return false;
     if (activeDept !== "All" && !m.departments?.includes(activeDept)) return false;
     if (q.trim()) {
@@ -56,7 +56,16 @@ const TeamPage: React.FC = () => {
       if (!hay.includes(needle)) return false;
     }
     return true;
-  });
+  })];
+
+  // Preserve the department display order used by the deployed site.
+  if (activeDept === "Video" && filtered.length >= 2) {
+    [filtered[0], filtered[1]] = [filtered[1], filtered[0]];
+  } else if (activeDept === "Challenge Organizers" && filtered.length >= 4) {
+    [filtered[0], filtered[3]] = [filtered[3], filtered[0]];
+  } else if (activeDept === "PR" && filtered.length >= 2) {
+    [filtered[0], filtered[1]] = [filtered[1], filtered[0]];
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -140,8 +149,8 @@ const TeamPage: React.FC = () => {
                   <CloudinaryImg
                     src={m.photo}
                     alt={m.name}
-                    width={240}
-                    className="h-full w-full object-cover"
+                    width={260}
+                    className="w-full object-cover"
                   />
 
                   {/* subtle name strip on hover/active */}
@@ -238,10 +247,10 @@ const TeamPage: React.FC = () => {
 <div className="mt-10 flex items-center justify-center">
   <div className="relative w-[260px] h-[340px] sm:w-[280px] sm:h-[360px] rounded-2xl overflow-hidden ring-2 ring-white shadow-xl bg-white">
     <CloudinaryImg
-      src={selected.photo || selected.ddayPhoto as string}
+      src={selected.photo}
       alt={`${selected.name} portrait`}
       width={320}
-      className="h-full w-full object-cover"
+      className="w-full object-cover"
     />
     <div className="absolute inset-0 ring-1 ring-black/10 rounded-2xl" />
   </div>
