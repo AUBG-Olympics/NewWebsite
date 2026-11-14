@@ -22,7 +22,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "aubgolympics_user", "-pverystrongpass1"]
+      test: ["CMD-SHELL", 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysqladmin ping -h 127.0.0.1 -u "$${MYSQL_USER}" --silent']
       interval: 3s
       timeout: 5s
       retries: 10
@@ -31,7 +31,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: alembic upgrade head
+    command: ["python", "-m", "scripts.migrate_local", "--repair-empty-legacy"]
     env_file:
       - ./backend/.env
     volumes:

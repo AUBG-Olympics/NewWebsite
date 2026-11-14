@@ -1,8 +1,5 @@
-from fastapi import FastAPI
-from src.routes import auth, sponsors
+"""Backend package. The ASGI application is exposed by ``src.main``.
 
-app = FastAPI(title="Olympics API")
-
-# Include routers
-app.include_router(auth.router, prefix="/auth", tags=["Auth"])
-app.include_router(sponsors.router, prefix="/sponsors", tags=["Sponsors"])
+Keep package imports free of application/OAuth initialization so Alembic can
+load model metadata without loading API routes or Google integrations.
+"""
