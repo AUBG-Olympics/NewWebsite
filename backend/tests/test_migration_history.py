@@ -30,7 +30,7 @@ class MigrationHistoryTests(unittest.TestCase):
         self.scripts = ScriptDirectory.from_config(self.config)
 
     def test_all_revisions_resolve_to_one_head(self):
-        self.assertEqual(self.scripts.get_heads(), ["e8f1a2b3c4d5"])
+        self.assertEqual(self.scripts.get_heads(), ["a0b3c4d5e6f7"])
         revisions = list(self.scripts.walk_revisions())
         files = list((BACKEND / "alembic" / "versions").glob("*.py"))
         self.assertEqual(len(revisions), len(files))
@@ -75,7 +75,7 @@ class MigrationHistoryTests(unittest.TestCase):
         with TemporaryDirectory() as directory, chdir(directory):
             config = Config(str(BACKEND / "alembic.ini"))
             scripts = ScriptDirectory.from_config(config)
-            self.assertEqual(scripts.get_heads(), ["e8f1a2b3c4d5"])
+            self.assertEqual(scripts.get_heads(), ["a0b3c4d5e6f7"])
 
 
 if __name__ == "__main__":

@@ -1,20 +1,15 @@
+import { API_BASE_URL } from "../util/api";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+
 
 interface Event {
   id: number;
   name: string;
   description?: string;
   date?: string;
-  separated_genders?: boolean;
-  max_teammates?: number;
-  min_teammates?: number | null;
   whatsapp_link?: string | null;
-  enable_waitlist?: boolean;
-  waitlist?: boolean;
-  waitlist_max_participants?: number | null;
   is_current: boolean;
 }
 
@@ -124,31 +119,8 @@ const DDayPage: React.FC = () => {
             {events.map((event) => (
               (() => {
                 const cap = capacityByEventId[event.id];
-                const isSeparated = Boolean(event.separated_genders);
-                const isFull = Boolean(cap?.full);
-                const waitlist = Boolean(cap?.waitlist);
-
-                let showWaitlist = false;
-                let showFull = false;
-
-                if (isSeparated) {
-                  const maleWaitlist = Boolean(cap?.male_waitlist);
-                  const femaleWaitlist = Boolean(cap?.female_waitlist);
-                  const maleClosed = Boolean(cap?.male_is_full) && !maleWaitlist;
-                  const femaleClosed = Boolean(cap?.female_is_full) && !femaleWaitlist;
-
-                  // Show WAITLIST only when neither gender has normal-cap spots left.
-                  // If one gender is still open normally, keep card in regular state.
-                  showWaitlist =
-                    (maleWaitlist || femaleWaitlist) &&
-                    (maleWaitlist || maleClosed) &&
-                    (femaleWaitlist || femaleClosed);
-
-                  showFull = maleClosed && femaleClosed;
-                } else {
-                  showWaitlist = waitlist;
-                  showFull = isFull && !waitlist;
-                }
+                const showWaitlist = Boolean(cap?.waitlist);
+                const showFull = Boolean(cap?.full) && !showWaitlist;
                 return (
               <button
                 key={event.id}

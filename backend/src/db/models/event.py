@@ -1,7 +1,7 @@
 from datetime import datetime as date_type
 from typing import List, Optional, TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, Integer, String, text
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.database import Base
@@ -17,19 +17,13 @@ class Event(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(1023), nullable=True)
     date: Mapped[Optional[date_type]] = mapped_column(DateTime)
-    separated_genders: Mapped[bool] = mapped_column(Boolean, default=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
-    max_teammates: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    min_teammates: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    max_participants: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    # When separated_genders=True, these override max_participants per gender if set.
-    max_participants_male: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    max_participants_female: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     whatsapp_link: Mapped[Optional[str]] = mapped_column(String(1023), nullable=True)
-    enable_waitlist: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("1"))
-    waitlist: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("0"))
-    # Max participants to allow before waitlist begins filling.
-    waitlist_max_participants: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    divisions = relationship(
+        "EventDivision", back_populates="event",
+        order_by="(EventDivision.sort_order, EventDivision.id)",
+        cascade="all, delete-orphan",
+    )
 
     # Relationship to submissions
     submissions: Mapped[List["FormSubmission"]] = relationship(

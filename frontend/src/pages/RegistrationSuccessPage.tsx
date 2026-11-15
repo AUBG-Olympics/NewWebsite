@@ -1,7 +1,8 @@
+import { API_BASE_URL } from "../util/api";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+
 
 interface Event {
   id: number;

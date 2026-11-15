@@ -1,6 +1,7 @@
 # Database migrations
 
-The migration chain now ends at `e8f1a2b3c4d5`. Historical revision IDs and
+The migration chain now ends at `a0b3c4d5e6f7`. See [DIVISIONS.md](DIVISIONS.md)
+for the named-division feature introduced after schema alignment. Historical revision IDs and
 parent links have been preserved, including the two historical roots and their
 existing merge. The three recovered ancestors must stay in the repository.
 
@@ -56,10 +57,10 @@ is not transactional, so production upgrades still require normal database
 backup procedures. Automatic downgrade of this revision is deliberately
 unsupported because it could truncate expanded strings or event times.
 
-Historical `events.teammates` and optional `events.location` columns are kept
-on existing databases. They are treated as intentionally unmanaged legacy
-columns, so autogeneration does not propose dropping their data. Other schema
-differences remain visible to `alembic check`.
+The optional historical `events.location` column remains unmanaged on existing
+databases. The division cleanup removes `events.teammates` and the replaced
+event-level settings after their backfill. Other schema differences remain
+visible to `alembic check`.
 
 Alembic now loads `.env` before reading `DATABASE_URL`, respects exported
 environment variables, and handles percent-encoded URLs correctly. Metadata
@@ -80,7 +81,7 @@ local MySQL administrator URL with permission to create databases. These tests
 create uniquely named `aubg_migration_test_*` databases and clean up only those
 databases; they do not use an existing application database.
 
-The 13 tests cover graph integrity, working-directory independence, fresh
+The migration-repair tests cover graph integrity, working-directory independence, fresh
 upgrades, upgrades from the production-era schema with preserved sample data,
 ORM inserts, repeat upgrades, empty legacy recovery and its SQL backup, refusal
 to reset populated or unexpected schemas, rejection of production targets, and

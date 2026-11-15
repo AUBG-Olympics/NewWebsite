@@ -19,7 +19,7 @@ from scripts.migrate_local import LEGACY_REVISION, reset_empty_legacy, validate_
 
 
 BACKEND = Path(__file__).resolve().parents[1]
-HEAD = "e8f1a2b3c4d5"
+HEAD = "a0b3c4d5e6f7"
 ADMIN_URL = os.environ.get("MIGRATION_TEST_ADMIN_URL")
 
 
@@ -36,7 +36,7 @@ class LocalTargetTests(unittest.TestCase):
 
 
 @unittest.skipUnless(ADMIN_URL, "Set MIGRATION_TEST_ADMIN_URL to run disposable MySQL tests")
-class MySQLMigrationTests(unittest.TestCase):
+class MySQLTestDatabase(unittest.TestCase):
     def setUp(self):
         url = sa.engine.make_url(ADMIN_URL)
         if url.get_backend_name() != "mysql" or url.host not in {"localhost", "127.0.0.1", "::1", "db"}:
@@ -74,13 +74,15 @@ class MySQLMigrationTests(unittest.TestCase):
         with self.engine.connect() as connection:
             return connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
 
+
+class MySQLMigrationTests(MySQLTestDatabase):
     def test_fresh_database_upgrades_and_matches_models(self):
         command.upgrade(self.config, "head")
         self.assertEqual(self.current(), HEAD)
         command.check(self.config)
         # A second run must be harmless.
         command.upgrade(self.config, "head")
-        from src.db.models import Event, FormSubmission, Sponsor, User
+        from src.db.models import Event, EventDivision, FormSubmission, Sponsor, User
         from sqlalchemy.orm import Session
         from datetime import datetime
 
@@ -88,8 +90,11 @@ class MySQLMigrationTests(unittest.TestCase):
             event = Event(name="Basketball", description="x" * 600, date=datetime(2026, 4, 18, 15, 30))
             session.add(event)
             session.flush()
+            division = EventDivision(event_id=event.id, name="Team entry", min_teammates=0, max_teammates=5)
+            session.add(division)
+            session.flush()
             session.add(FormSubmission(
-                event_id=event.id, sport="Basketball", name="Test Member", gender=None,
+                event_id=event.id, division_id=division.id, sport="Basketball", name="Test Member",
                 teammates="x" * 511, phone_number="1234567890", email="test@example.com",
             ))
             session.add(Sponsor(name="Sponsor", website="x" * 600, logo="x" * 600))
@@ -113,11 +118,10 @@ class MySQLMigrationTests(unittest.TestCase):
         command.upgrade(self.config, "head")
         command.check(self.config)
         with self.engine.connect() as connection:
-            row = connection.execute(sa.text(
-                "SELECT name, description, max_participants_male, max_participants_female, "
-                "enable_waitlist, waitlist FROM events"
-            )).one()
-            self.assertEqual(tuple(row), ("Existing Event", "Existing description", 17, 23, 1, 0))
+            row = connection.execute(sa.text("SELECT name, description FROM events")).one()
+            self.assertEqual(tuple(row), ("Existing Event", "Existing description"))
+            caps = connection.execute(sa.text("SELECT name, max_participants FROM event_divisions WHERE name IN ('Men', 'Women') ORDER BY id")).all()
+            self.assertEqual([tuple(row) for row in caps], [("Men", 17), ("Women", 23)])
             self.assertEqual(connection.scalar(sa.text("SELECT teammates FROM form_submissions")), "x" * 500)
             self.assertEqual(connection.scalar(sa.text("SELECT location FROM events")), "Keep this venue")
 

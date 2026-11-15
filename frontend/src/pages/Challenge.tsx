@@ -1,21 +1,17 @@
+import { API_BASE_URL } from "../util/api";
+import type { Division } from "../types/divisions";
 import React, { useEffect, useState } from "react";
 import CustomizableForm from "../components/CustomizableForm";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+
 
 interface Event {
+  divisions: Division[];
   id: number;
   name: string;
   description?: string;
   date?: string;
   is_current: boolean;
-  separated_genders?: boolean;
-  max_teammates?: number;
-  min_teammates?: number | null;
-  max_participants?: number | null;
-  enable_waitlist?: boolean;
-  waitlist?: boolean;
-  waitlist_max_participants?: number | null;
 }
 
 const ChallengePage: React.FC = () => {
@@ -89,9 +85,6 @@ const ChallengePage: React.FC = () => {
   }
 
   const isWaitlist = Boolean(capacityInfo?.waitlist);
-  const waitlistEnabled = Boolean(
-    (capacityInfo?.waitlist_max_participants ?? 0) > 0,
-  );
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#e3772c] via-orange-200 to-orange-100">
@@ -121,14 +114,12 @@ const ChallengePage: React.FC = () => {
             </div>
           ) : null}
           <CustomizableForm
-            maxTeammates={event.max_teammates || 0}
-            minTeammates={event.min_teammates ?? null}
-            separated_genders={event.separated_genders}
+            divisions={event.divisions}
+
             eventId={event.id}
             sport={event.name}
             description={event.description || ""}
-            waitlistEnabled={waitlistEnabled}
-            capacityIsFull={isFull}
+
             capacityInfo={capacityInfo}
           />
         </>

@@ -1,23 +1,19 @@
+import { API_BASE_URL } from "../util/api";
+import type { Division } from "../types/divisions";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CustomizableForm from "../components/CustomizableForm";
 import SponsorCarousel from "../components/SponsorCarousel";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+
 
 interface Event {
+  divisions: Division[];
   id: number;
   name: string;
   description?: string;
   date?: string;
-  separated_genders?: boolean;
-  max_teammates?: number;
-  min_teammates?: number | null;
   whatsapp_link?: string | null;
-  max_participants?: number | null;
-  enable_waitlist?: boolean;
-  waitlist?: boolean;
-  waitlist_max_participants?: number | null;
   is_current: boolean;
 }
 
@@ -111,11 +107,6 @@ const SignupFormPage: React.FC = () => {
   }
 
   const isWaitlist = Boolean(capacityInfo?.waitlist);
-  const waitlistEnabled = Boolean(
-    capacityInfo?.waitlist ||
-      capacityInfo?.male_waitlist ||
-      capacityInfo?.female_waitlist,
-  );
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#e3772c] via-orange-200 to-orange-100">
@@ -142,14 +133,12 @@ const SignupFormPage: React.FC = () => {
           <>
 
             <CustomizableForm
-              maxTeammates={event.max_teammates || 0}
-              minTeammates={event.min_teammates ?? null}
-              separated_genders={event.separated_genders}
+            divisions={event.divisions}
+
               eventId={event.id}
               sport={event.name}
               description={event.description || ""}
-              waitlistEnabled={waitlistEnabled}
-              capacityIsFull={isFull}
+
               capacityInfo={capacityInfo}
               onSubmit={() => navigate(`/dday/signup/success/${event.id}`)}
             />

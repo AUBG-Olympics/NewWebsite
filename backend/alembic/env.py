@@ -42,14 +42,14 @@ def include_object(obj, name, type_, reflected, compare_to):
     # never an application table to remove during autogeneration.
     if type_ == "table" and reflected and name == "alembic_version":
         return False
-    # Historical upgrades deliberately retain these unused columns. They may
-    # still contain data, so autogeneration must not propose deleting them.
+    # The historical location column may still contain data. Autogeneration
+    # must not propose deleting it as part of the division cleanup.
     return not (
         type_ == "column"
         and reflected
         and compare_to is None
         and obj.table.name == "events"
-        and name in {"teammates", "location"}
+        and name == "location"
     )
 
 
