@@ -5,6 +5,7 @@ import SponsorsPage from "../pages/Sponsors";
 import TeamPage from "../pages/Team";
 import ChallengePage from "../pages/Challenge";
 import DDayPage from "../pages/DDayPage";
+import DDaySchedulePage from "../pages/DDaySchedulePage";
 import SignupFormPage from "../pages/SignupFormPage";
 import RegistrationSuccessPage from "../pages/RegistrationSuccessPage";
 import AdminPanel from "../pages/Admin/AdminPanel";
@@ -23,6 +24,7 @@ const Router: React.FC = () => (
     <Route path="/team" element={<TeamPage />} />
     <Route path="/challenge" element={<ChallengePage />} />
     <Route path="/dday" element={<DDayPage />} />
+    <Route path="/dday/schedule" element={<DDaySchedulePage />} />
     <Route path="/dday/signup/:eventId" element={<SignupFormPage />} />
     <Route
       path="/dday/signup/success/:eventId"

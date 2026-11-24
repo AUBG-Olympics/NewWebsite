@@ -1,7 +1,10 @@
 import os
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
+from dotenv import load_dotenv
 
 from alembic import context
 
@@ -9,10 +12,17 @@ from alembic import context
 # access to the values within the .ini file in use.
 config = context.config
 
+# Resolve .env relative to the backend, not the shell's working directory.
+# An explicitly exported DATABASE_URL always wins.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 # override the sqlalchemy.url from environment variable
 database_url = os.getenv("DATABASE_URL")
 if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+    # ConfigParser treats percent signs as interpolation syntax, including in
+    # URL-encoded passwords. Escape them only for the INI configuration layer.
+    config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -24,6 +34,23 @@ import src.db.models
 from src.db.database import Base
 
 target_metadata = Base.metadata
+
+
+def include_object(obj, name, type_, reflected, compare_to):
+    # MySQL reflects the current database as schema=None, while the version
+    # table is explicitly schema-qualified below. It is Alembic bookkeeping,
+    # never an application table to remove during autogeneration.
+    if type_ == "table" and reflected and name == "alembic_version":
+        return False
+    # The historical location column may still contain data. Autogeneration
+    # must not propose deleting it as part of the division cleanup.
+    return not (
+        type_ == "column"
+        and reflected
+        and compare_to is None
+        and obj.table.name == "events"
+        and name == "location"
+    )
 
 
 # other values from the config, defined by the needs of env.py,
@@ -50,6 +77,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -81,6 +109,7 @@ def run_migrations_online() -> None:
             compare_type=True,
             compare_server_default=True,
             version_table_schema=db_schema,
+            include_object=include_object,
         )
 
         with context.begin_transaction():

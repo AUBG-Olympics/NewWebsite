@@ -1,45 +1,32 @@
-import React, { useEffect, useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import React, { useEffect, useState, type FormEvent } from "react";
+import { API_BASE_URL } from "../util/api";
+import {
+  apiError,
+  type Division,
+  type DivisionCapacity,
+} from "../types/divisions";
 
-type GenderSelection = "female" | "male";
-
-interface FormSubmissionPayload {
-  event_id: number;
-  sport: string;
+interface Contact {
   name: string;
-  team_name?: string;
-  phone_number: string;
   email: string;
-  teammates: string | null;
-  gender?: GenderSelection | null;
+  phone: string;
 }
-
 export interface CustomizableFormProps {
-  maxTeammates?: number;
-  minTeammates?: number | null;
-  separated_genders?: boolean;
+  divisions: Division[];
   eventId?: number;
   sport?: string;
   description?: string;
-  waitlistEnabled?: boolean;
-  capacityIsFull?: boolean;
-  capacityInfo?: any;
-  onSubmit?: (payload: {
-    name: string;
-    email: string;
-    phone: string;
-    separated_genders?: boolean;
-    genderSelection?: GenderSelection;
-    teammates?: string[];
-    team_name?: string;
-  }) => void;
+  capacityInfo?: { divisions?: DivisionCapacity[] };
+  onSubmit?: (
+    payload: Contact & {
+      division_id: number;
+      teammates: string[];
+      team_name?: string;
+    },
+  ) => void;
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
-
 const fieldStyles =
   "w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition";
-
 const urlRegex = /(https?:\/\/[^\s]+)/g;
 
 function renderDescriptionWithLinks(text: string): React.ReactNode {
@@ -83,511 +70,316 @@ function renderDescriptionWithLinks(text: string): React.ReactNode {
 }
 
 const CustomizableForm: React.FC<CustomizableFormProps> = ({
-  maxTeammates = 0,
-  minTeammates = null,
-  separated_genders = false,
+  divisions,
   eventId,
   sport,
   description = "",
-  waitlistEnabled = false,
-  capacityIsFull = false,
   capacityInfo,
   onSubmit,
 }) => {
-  const sanitizedMaxTeammates = useMemo(
-    () => Math.max(0, Math.floor(maxTeammates)),
-    [maxTeammates],
+  const options = Array.isArray(divisions) ? divisions : [];
+  const [capacity, setCapacity] = useState(capacityInfo);
+  const [selectedId, setSelectedId] = useState(
+    () =>
+      options.find(
+        (division) =>
+          !capacityInfo?.divisions?.find((row) => row.id === division.id)
+            ?.closed,
+      )?.id ?? options[0]?.id,
   );
-
-  const [selectedGender, setSelectedGender] = useState<GenderSelection>("female");
-  const [hasUserSelectedGender, setHasUserSelectedGender] = useState(false);
-  const [teammateNames, setTeammateNames] = useState<string[]>(
-    Array.from({ length: sanitizedMaxTeammates }, () => ""),
+  const selected =
+    options.find((division) => division.id === selectedId) ?? options[0];
+  const maxTeammates = selected?.max_teammates ?? 0;
+  const [teammates, setTeammates] = useState<string[]>(() =>
+    Array.from({ length: maxTeammates }, () => ""),
   );
   const [teamName, setTeamName] = useState("");
-  const [formValues, setFormValues] = useState({
+  const [contact, setContact] = useState<Contact>({
     name: "",
     email: "",
     phone: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{
-    type: "success" | "error" | null;
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
     message: string;
-  }>({ type: null, message: "" });
-  const [isWaitlistMode, setIsWaitlistMode] = useState(false);
-
-  const isSelectedGenderWaitlist =
-    separated_genders === true
-      ? selectedGender === "male"
-        ? Boolean(capacityInfo?.male_waitlist)
-        : Boolean(capacityInfo?.female_waitlist)
-      : Boolean(capacityInfo?.waitlist);
-
-  const isSelectedGenderFull =
-    separated_genders === true
-      ? selectedGender === "male"
-        ? Boolean(capacityInfo?.male_is_full) && !isSelectedGenderWaitlist
-        : Boolean(capacityInfo?.female_is_full) && !isSelectedGenderWaitlist
-      : Boolean(capacityInfo?.full) && !isSelectedGenderWaitlist;
-
-  const maleClosed = Boolean(
-    separated_genders &&
-      capacityInfo?.male_is_full &&
-      !capacityInfo?.male_waitlist,
+  } | null>(null);
+  const selectedCapacity = capacity?.divisions?.find(
+    (row) => row.id === selected?.id,
   );
-  const femaleClosed = Boolean(
-    separated_genders &&
-      capacityInfo?.female_is_full &&
-      !capacityInfo?.female_waitlist,
-  );
-  const availableGenderOptions = (["female", "male"] as GenderSelection[]).filter(
-    (g) => (g === "male" ? !maleClosed : !femaleClosed),
+  useEffect(() => setCapacity(capacityInfo), [capacityInfo]);
+  useEffect(
+    () =>
+      setTeammates((previous) =>
+        Array.from(
+          { length: maxTeammates },
+          (_, index) => previous[index] ?? "",
+        ),
+      ),
+    [maxTeammates],
   );
 
-  // Keep waitlist banner in sync with currently selected gender.
-  useEffect(() => {
-    if (!capacityInfo) {
-      setIsWaitlistMode(Boolean(waitlistEnabled && capacityIsFull));
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (submitting || !selected) return;
+    setStatus(null);
+    const names = teammates.map((name) => name.trim()).filter(Boolean);
+    const error =
+      contact.name.trim().length < 2 || contact.name.trim().length > 50
+        ? "Name must be between 2 and 50 characters."
+        : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())
+          ? "Please enter a valid email address."
+          : !/^\d{10,15}$/.test(contact.phone.replace(/\D/g, ""))
+            ? "Phone number must be 10–15 digits."
+            : names.length < selected.min_teammates ||
+                names.length > selected.max_teammates
+              ? `This division requires ${selected.min_teammates} to ${selected.max_teammates} teammates.`
+              : selected.max_teammates > 0 && !teamName.trim()
+                ? "Team name is required for this division."
+                : selectedCapacity?.closed
+                  ? "This division is full. Please choose another division."
+                  : null;
+    if (error) {
+      setStatus({ type: "error", message: error });
       return;
     }
-    setIsWaitlistMode(isSelectedGenderWaitlist);
-  }, [
-    capacityInfo,
-    isSelectedGenderWaitlist,
-    waitlistEnabled,
-    capacityIsFull,
-    selectedGender,
-  ]);
-
-  const validateForm = (): string[] => {
-    const errors: string[] = [];
-
-    const trimmedName = formValues.name.trim();
-    if (trimmedName.length < 2 || trimmedName.length > 50) {
-      errors.push("Name must be between 2 and 50 characters.");
-    }
-
-    const trimmedEmail = formValues.email.trim();
-    // Basic email validation to roughly match Pydantic's EmailStr
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      errors.push("Please enter a valid email address.");
-    }
-
-    // Match backend phone_number validator: 10–15 digits, ignoring other characters
-    const phoneDigits = formValues.phone.replace(/\D/g, "");
-    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-      errors.push("Phone number must be 10–15 digits (numbers only).");
-    }
-
-    // sport backend constraint: 2–50 chars
-    if (sport) {
-      const trimmedSport = sport.trim();
-      if (trimmedSport.length < 2 || trimmedSport.length > 50) {
-        errors.push("Sport name must be between 2 and 50 characters.");
-      }
-    }
-
-    if (sanitizedMaxTeammates > 0) {
-      const trimmedTeamName = teamName.trim();
-      if (trimmedTeamName.length === 0) {
-        errors.push("Team name is required for this sport.");
-      }
-
-      const filledCount = teammateNames.filter(
-        (name) => name.trim().length > 0,
-      ).length;
-
-      if (minTeammates !== null && minTeammates !== undefined) {
-        if (filledCount < minTeammates) {
-          errors.push(`Please enter at least ${minTeammates} teammate names.`);
-        }
-      }
-    }
-    return errors;
-  };
-
-  useEffect(() => {
-    setTeammateNames((prev) => {
-      if (prev.length === sanitizedMaxTeammates) return prev;
-      const updated = [...prev];
-      if (sanitizedMaxTeammates > prev.length) {
-        updated.push(
-          ...Array.from(
-            { length: sanitizedMaxTeammates - prev.length },
-            () => "",
+    setSubmitting(true);
+    try {
+      if (!eventId || !sport)
+        throw new Error("Event details are missing. Refresh the page.");
+      const check = await fetch(
+        `${API_BASE_URL}/api/forms/capacity/${eventId}`,
+      );
+      if (!check.ok)
+        throw new Error(
+          apiError(
+            await check.json(),
+            "Could not check division availability.",
           ),
         );
-      } else {
-        updated.length = sanitizedMaxTeammates;
-      }
-      return updated;
-    });
-  }, [sanitizedMaxTeammates]);
-
-  // Choose a sensible default gender when only one cap still has room.
-  // Do this only before the user manually changes the selection.
-  useEffect(() => {
-    if (!separated_genders || hasUserSelectedGender || !capacityInfo) return;
-
-    const maleFull = Boolean(capacityInfo.male_is_full);
-    const femaleFull = Boolean(capacityInfo.female_is_full);
-
-    if (maleFull && !femaleFull) {
-      setSelectedGender("female");
-    } else if (femaleFull && !maleFull) {
-      setSelectedGender("male");
-    }
-  }, [separated_genders, hasUserSelectedGender, capacityInfo]);
-
-  // If current selected gender becomes unavailable, switch to the remaining available option.
-  useEffect(() => {
-    if (!separated_genders) return;
-    if (availableGenderOptions.length === 0) return;
-    if (!availableGenderOptions.includes(selectedGender)) {
-      setSelectedGender(availableGenderOptions[0]);
-    }
-  }, [separated_genders, availableGenderOptions, selectedGender]);
-
-  const handleChange = (field: "name" | "email" | "phone", value: string) => {
-    setFormValues((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleTeammateChange = (index: number, value: string) => {
-    setTeammateNames((prev) => {
-      const clone = [...prev];
-      clone[index] = value;
-      return clone;
-    });
-  };
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
-
-    const validationErrors = validateForm();
-    if (validationErrors.length > 0) {
-      setIsSubmitting(false);
-      setSubmitStatus({
-        type: "error",
-        message: validationErrors.join(" | "),
-      });
-      return;
-    }
-
-    try {
-      let submitAsWaitlist = isSelectedGenderWaitlist;
-
-      // Map frontend data to backend schema format
-      const filledTeammates = teammateNames
-        .map((name) => name.trim())
-        .filter((name) => name.length > 0);
-      const teammatesString =
-        sanitizedMaxTeammates > 0
-          ? filledTeammates.length > 0
-            ? filledTeammates.join(", ")
-            : null
-          : null;
-
-      // Only submit to API if eventId and sport are provided
-      if (eventId && sport) {
-        // Re-check capacity before submit (cap may have filled while user was filling the form)
-        try {
-          const sportParam = encodeURIComponent(sport);
-          const capRes = await fetch(
-            `${API_BASE_URL}/api/forms/capacity/${eventId}?sport=${sportParam}`,
-          );
-          if (capRes.ok) {
-            const capData: any = await capRes.json();
-            const selectedGenderFullFromCap =
-              separated_genders === true
-                ? selectedGender === "male"
-                  ? Boolean(capData.male_is_full)
-                  : Boolean(capData.female_is_full)
-                : Boolean(capData.full);
-            const selectedGenderWaitlistFromCap =
-              separated_genders === true
-                ? selectedGender === "male"
-                  ? Boolean(capData.male_waitlist)
-                  : Boolean(capData.female_waitlist)
-                : Boolean(capData.waitlist);
-
-            submitAsWaitlist = selectedGenderWaitlistFromCap;
-
-            if (selectedGenderFullFromCap && !selectedGenderWaitlistFromCap) {
-              setIsSubmitting(false);
-              setSubmitStatus({
-                type: "error",
-                message:
-                  "The participant cap has been filled for your selected gender. Registration is no longer available.",
-              });
-              return;
-            }
-
-            if (selectedGenderWaitlistFromCap) {
-              setIsWaitlistMode(true);
-            }
-          }
-        } catch (_e) {
-          // Proceed with submit; backend will enforce cap
-        }
-
-        const payload: FormSubmissionPayload = {
+      const latest = await check.json();
+      setCapacity(latest);
+      const latestDivision: DivisionCapacity | undefined =
+        latest.divisions?.find(
+          (row: DivisionCapacity) => row.id === selected.id,
+        );
+      if (!latestDivision)
+        throw new Error(
+          "This division is no longer available. Refresh the page.",
+        );
+      if (latestDivision.closed)
+        throw new Error(
+          "This division is full. Please choose another division.",
+        );
+      const response = await fetch(`${API_BASE_URL}/api/forms/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           event_id: eventId,
-          sport: sport,
-          name: formValues.name,
-          phone_number: formValues.phone,
-          email: formValues.email,
-          team_name: sanitizedMaxTeammates > 0 ? teamName.trim() : undefined,
-          teammates: teammatesString,
-        };
-
-        // Only include gender if separated_genders is true
-        if (separated_genders) {
-          payload.gender = selectedGender;
-        }
-
-        // Submit to backend API
-        const response = await fetch(`${API_BASE_URL}/api/forms/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ detail: "Failed to submit form" }));
-          throw new Error(errorData.detail || `Server error: ${response.status}`);
-        }
-
-        await response.json();
-        setSubmitStatus({
-          type: "success",
-          message: submitAsWaitlist
-            ? "Form submitted successfully! You’ve been added to the waitlist."
-            : "Form submitted successfully! We'll be in touch soon.",
-        });
-
-        // Reset form after successful submission
-        setFormValues({ name: "", email: "", phone: "" });
-        setTeamName("");
-        setTeammateNames(Array.from({ length: sanitizedMaxTeammates }, () => ""));
-      }
-
-      // Call custom onSubmit handler if provided
-      if (onSubmit) {
-        onSubmit({
-          ...formValues,
-          separated_genders: separated_genders,
-          genderSelection: separated_genders ? selectedGender : undefined,
-          teammates: sanitizedMaxTeammates ? teammateNames : undefined,
-          team_name: sanitizedMaxTeammates > 0 ? teamName : undefined,
-        });
-      }
-    } catch (error) {
-      setSubmitStatus({
+          division_id: selected.id,
+          sport,
+          name: contact.name.trim(),
+          email: contact.email.trim(),
+          phone_number: contact.phone.replace(/\D/g, ""),
+          teammates: names.length ? names.join(", ") : null,
+          team_name: selected.max_teammates ? teamName.trim() : null,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(apiError(data, "Failed to submit registration."));
+      setStatus({
+        type: "success",
+        message: latestDivision.waitlist
+          ? "Form submitted successfully! You’ve been added to the waitlist."
+          : "Form submitted successfully! We'll be in touch soon.",
+      });
+      onSubmit?.({
+        ...contact,
+        division_id: selected.id,
+        teammates: names,
+        team_name: selected.max_teammates ? teamName.trim() : undefined,
+      });
+      setContact({ name: "", email: "", phone: "" });
+      setTeamName("");
+      setTeammates(Array.from({ length: maxTeammates }, () => ""));
+    } catch (failure) {
+      setStatus({
         type: "error",
-        message: error instanceof Error ? error.message : "Failed to submit form. Please try again.",
+        message:
+          failure instanceof Error
+            ? failure.message
+            : "Failed to submit registration.",
       });
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
+  if (!selected)
+    return (
+      <p role="alert" className="p-6 text-center text-red-700">
+        Event divisions could not be loaded. Refresh the page or contact the
+        organizers.
+      </p>
+    );
   return (
     <section className="w-full flex justify-center py-16 px-4 md:px-0">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={submit}
         className="w-full max-w-3xl bg-white/90 border-4 border-black rounded-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,0.2)] p-8 md:p-12 space-y-6"
         style={{ fontFamily: "'Lato', sans-serif" }}
       >
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-3">
-            <h2
-              className="text-3xl md:text-4xl text-orange-500 font-lilita"
-            >
-              {sport?.toUpperCase()}
-            </h2>
-            {isSelectedGenderWaitlist && (
-              <span className="inline-flex items-center rounded-full bg-orange-500 text-white text-xs font-bold px-3 py-1 border-2 border-black">
-                WAITLIST
-              </span>
-            )}
-            {isSelectedGenderFull && !isSelectedGenderWaitlist && (
-              <span className="inline-flex items-center rounded-full bg-red-600 text-white text-xs font-bold px-3 py-1 border-2 border-black">
-                FULL
-              </span>
-            )}
-          </div>
+          <h2 className="text-3xl md:text-4xl text-orange-500 font-lilita">
+            {sport?.toUpperCase()}
+          </h2>
           <p className="text-blue-800 text-sm md:text-base max-w-xl mx-auto">
             {renderDescriptionWithLinks(description)}
           </p>
         </div>
-
-        {isWaitlistMode ? (
-          <div className="w-full px-4 py-3 rounded-xl border-2 bg-orange-100 border-orange-400 text-orange-900">
-            <p className="text-sm font-semibold">
-              The cap is filled. Submissions are being added to the waitlist.
-            </p>
+        {selectedCapacity?.waitlist && (
+          <div className="px-4 py-3 rounded-xl border-2 bg-orange-100 border-orange-400 text-orange-900">
+            <strong>WAITLIST</strong> — The cap is filled. Submissions are being
+            added to the waitlist.
           </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <label className="flex flex-col gap-2 text-blue-900">
-            <span className="text-sm font-semibold tracking-wide uppercase">
-              Name*
-            </span>
-            <input
-              className={fieldStyles}
-              type="text"
-              value={formValues.name}
-              onChange={(event) => handleChange("name", event.target.value)}
-              placeholder="Enter your full name"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-blue-900">
-            <span className="text-sm font-semibold tracking-wide uppercase">
-              Email*
-            </span>
-            <input
-              className={fieldStyles}
-              type="email"
-              value={formValues.email}
-              onChange={(event) => handleChange("email", event.target.value)}
-              placeholder="name@example.com"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-blue-900">
-            <span className="text-sm font-semibold tracking-wide uppercase">
-              Phone Number*
-            </span>
-            <input
-              className={fieldStyles}
-              type="tel"
-              value={formValues.phone}
-              onChange={(event) => handleChange("phone", event.target.value)}
-              placeholder="+359 123 456 789"
-              required
-            />
-          </label>
-        </div>
-
-        {separated_genders === true && (
-          <div className="flex flex-col gap-3 text-blue-900">
-            <span className="text-sm font-semibold tracking-wide uppercase">
-              Select Gender
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {availableGenderOptions.map((option) => (
+        )}
+        {selectedCapacity?.closed && (
+          <p
+            role="alert"
+            className="px-4 py-3 rounded-xl border-2 bg-red-100 border-red-400 text-red-800"
+          >
+            This division is full. Please choose another division.
+          </p>
+        )}
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold tracking-wide uppercase text-blue-900 mb-3">
+            Select Division
+          </legend>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {options.map((division) => {
+              const available = capacity?.divisions?.find(
+                (row) => row.id === division.id,
+              );
+              return (
                 <label
-                  key={option}
-                  className={`cursor-pointer rounded-xl border-2 ${
-                    selectedGender === option
-                      ? "border-yellow-400 bg-yellow-100"
-                      : "border-blue-200 bg-white"
-                  } px-4 py-3 flex items-center justify-center text-sm font-semibold uppercase tracking-wide`}
+                  key={division.id}
+                  className={`cursor-pointer break-words rounded-xl border-2 px-4 py-3 text-sm font-semibold text-blue-900 ${selected.id === division.id ? "border-yellow-400 bg-yellow-100" : "border-blue-200 bg-white"}`}
                 >
                   <input
                     type="radio"
-                    name="genderSelection"
-                    value={option}
-                    checked={selectedGender === option}
+                    name="division"
+                    value={division.id}
+                    checked={selected.id === division.id}
+                    disabled={submitting}
                     onChange={() => {
-                      setHasUserSelectedGender(true);
-                      setSelectedGender(option);
+                      setSelectedId(division.id);
+                      setTeamName("");
+                      setTeammates(
+                        Array.from(
+                          { length: division.max_teammates },
+                          () => "",
+                        ),
+                      );
+                      setStatus(null);
                     }}
-                    className="hidden"
+                    className="mr-2 accent-orange-500"
                   />
-                  <span className="text-blue-900">
-                    {option === "female"
-                      ? capacityInfo?.female_waitlist
-                        ? "Female (Waitlist)"
-                        : "Female"
-                      : capacityInfo?.male_waitlist
-                        ? "Male (Waitlist)"
-                        : "Male"}
-                  </span>
+                  {division.name}
+                  {available?.waitlist
+                    ? " (Waitlist)"
+                    : available?.closed
+                      ? " — FULL"
+                      : ""}
                 </label>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
-
-        {sanitizedMaxTeammates > 0 && (
+        </fieldset>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {(
+            [
+              ["name", "Name*", "text", "Enter your full name"],
+              ["email", "Email*", "email", "name@example.com"],
+              ["phone", "Phone Number*", "tel", "+359 123 456 789"],
+            ] as const
+          ).map(([key, label, type, placeholder]) => (
+            <label key={key} className="flex flex-col gap-2 text-blue-900">
+              <span className="text-sm font-semibold tracking-wide uppercase">
+                {label}
+              </span>
+              <input
+                required
+                type={type}
+                value={contact[key]}
+                onChange={(change) =>
+                  setContact({ ...contact, [key]: change.target.value })
+                }
+                placeholder={placeholder}
+                className={fieldStyles}
+              />
+            </label>
+          ))}
+        </div>
+        {maxTeammates > 0 && (
           <div className="space-y-3">
             <label className="flex flex-col gap-2 text-blue-900">
               <span className="text-sm font-semibold tracking-wide uppercase">
                 Team Name*
               </span>
               <input
-                className={fieldStyles}
-                type="text"
+                required
                 value={teamName}
-                onChange={(event) => setTeamName(event.target.value)}
+                onChange={(change) => setTeamName(change.target.value)}
                 placeholder="Enter your team name"
+                className={fieldStyles}
               />
             </label>
-
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold uppercase tracking-wide text-blue-900">
-                Teammates ({sanitizedMaxTeammates})
+                Teammates ({maxTeammates})
               </span>
               <span className="text-sm text-red-600">
-                {minTeammates !== null && minTeammates !== undefined
-                  ? `Min ${minTeammates} teammates required`
-                  : `Add up to ${sanitizedMaxTeammates} teammates`}
+                Min {selected.min_teammates} teammates required
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {teammateNames.map((value, index) => (
+              {teammates.map((name, index) => (
                 <input
-                  key={`teammate-${index}`}
-                  className={fieldStyles}
-                  type="text"
-                  value={value}
-                  onChange={(event) =>
-                    handleTeammateChange(index, event.target.value)
+                  key={index}
+                  value={name}
+                  onChange={(change) =>
+                    setTeammates(
+                      teammates.map((value, current) =>
+                        current === index ? change.target.value : value,
+                      ),
+                    )
                   }
                   placeholder={`Teammate ${index + 1}`}
-                  aria-required={false}
+                  required={index < selected.min_teammates}
+                  className={fieldStyles}
                 />
               ))}
             </div>
           </div>
         )}
-
-        {submitStatus.type && (
-          <div
-            className={`w-full px-4 py-3 rounded-xl border-2 ${
-              submitStatus.type === "success"
-                ? "bg-green-100 border-green-400 text-green-800"
-                : "bg-red-100 border-red-400 text-red-800"
-            }`}
+        {status && (
+          <p
+            role="status"
+            className={`px-4 py-3 rounded-xl border-2 ${status.type === "success" ? "bg-green-100 border-green-400 text-green-800" : "bg-red-100 border-red-400 text-red-800"}`}
           >
-            <p className="text-sm font-semibold">{submitStatus.message}</p>
-          </div>
+            {status.message}
+          </p>
         )}
-
         <button
           type="submit"
-          disabled={isSubmitting}
-          className={`w-full px-6 py-4 bg-yellow-400 text-blue-900 font-bold uppercase tracking-[0.2em] rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] transition ${
-            isSubmitting
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-yellow-300"
-          }`}
+          disabled={submitting || selectedCapacity?.closed}
+          className="w-full px-6 py-4 bg-yellow-400 text-blue-900 font-bold uppercase tracking-[0.2em] rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {submitting ? "Submitting..." : "Submit"}
         </button>
       </form>
     </section>
   );
 };
-
 export default CustomizableForm;
-

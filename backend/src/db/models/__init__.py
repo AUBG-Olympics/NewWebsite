@@ -1,4 +1,5 @@
 from src.db.models.event import Event
+from src.db.models.division import EventDivision
 from src.db.models.form import FormSubmission
 from src.db.models.site_setting import SiteSetting
 from src.db.models.sponsor import Sponsor

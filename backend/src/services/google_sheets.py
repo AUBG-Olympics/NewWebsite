@@ -20,6 +20,12 @@ from src.util.google_exceptions import (
 logger = logging.getLogger(__name__)
 
 
+def sheet_range(sheet_name: str, cell: Optional[str] = None) -> str:
+    """Quote arbitrary tab names for A1 notation, including apostrophes and !."""
+    quoted = "'" + sheet_name.replace("'", "''") + "'"
+    return quoted + ("!" + cell if cell else "")
+
+
 class GoogleSheetsService:
     SCOPES = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -86,8 +92,9 @@ class GoogleSheetsService:
 
         try:
             # Try to find existing spreadsheet
+            escaped_title = title.replace("\\", "\\\\").replace("'", "\\'")
             query = (
-                f"name = '{title}' "
+                f"name = '{escaped_title}' "
                 f"and mimeType = 'application/vnd.google-apps.spreadsheet' "
                 f"and '{folder_id}' in parents "
                 f"and trashed = false"
@@ -194,7 +201,7 @@ class GoogleSheetsService:
 
             self._sheets.spreadsheets().values().append(
                 spreadsheetId=spreadsheet_id,
-                range=sheet_name,
+                range=sheet_range(sheet_name),
                 insertDataOption="INSERT_ROWS",
                 valueInputOption="RAW",
                 body={"values": values},
@@ -213,7 +220,7 @@ class GoogleSheetsService:
             # 1. Find first empty row
             result = self._sheets.spreadsheets().values().get(
                 spreadsheetId=spreadsheet_id,
-                range=sheet_name,
+                range=sheet_range(sheet_name),
             ).execute()
 
             values = result.get("values", [])
@@ -256,7 +263,7 @@ class GoogleSheetsService:
             # 4. Write text into merged cell
             self._sheets.spreadsheets().values().update(
                 spreadsheetId=spreadsheet_id,
-                range=f"{sheet_name}!A{row_index + 1}",
+                range=sheet_range(sheet_name, f"A{row_index + 1}"),
                 valueInputOption="RAW",
                 body={"values": [[text_to_write]]},
             ).execute()
@@ -276,7 +283,7 @@ class GoogleSheetsService:
 
             self._sheets.spreadsheets().values().update(
                 spreadsheetId=spreadsheet_id,
-                range=f"{sheet_name}!A1",
+                range=sheet_range(sheet_name, "A1"),
                 valueInputOption="RAW",
                 body={"values": values},
             ).execute()
@@ -284,6 +291,58 @@ class GoogleSheetsService:
 
         except HttpError as e:
             self._handle_http_error(e, "Write sheet")
+
+    def write_registration_sheet(self, spreadsheet_id: str, sheet_name: str, values: List[List]):
+        """Atomically replace the generated table and its formatting, clearing stale rows."""
+        try:
+            self.add_sheet(spreadsheet_id, sheet_name)
+            metadata = self._sheets.spreadsheets().get(
+                spreadsheetId=spreadsheet_id, fields="sheets(properties)",
+            ).execute()
+            properties = next(sheet["properties"] for sheet in metadata["sheets"]
+                              if sheet["properties"]["title"] == sheet_name)
+            sheet_id = properties["sheetId"]
+            grid = properties["gridProperties"]
+            columns = len(values[0])
+            row_count = max(grid["rowCount"], len(values))
+            area = {"sheetId": sheet_id, "startRowIndex": 0, "endRowIndex": row_count,
+                    "startColumnIndex": 0, "endColumnIndex": max(columns, grid["columnCount"])}
+            # Explicit stringValue preserves +phone prefixes, leading zeros and
+            # literal =text without spreadsheet formula interpretation.
+            rows = [{"values": [{"userEnteredValue": {"numberValue": value} if isinstance(value, (int, float))
+                                 else {"stringValue": str(value or "")}} for value in row]} for row in values]
+            requests = [
+                {"updateSheetProperties": {"properties": {"sheetId": sheet_id,
+                    "gridProperties": {"rowCount": row_count, "columnCount": area["endColumnIndex"],
+                                       "frozenRowCount": 1}},
+                    "fields": "gridProperties.rowCount,gridProperties.columnCount,gridProperties.frozenRowCount"}},
+                {"updateCells": {"range": area, "rows": rows, "fields": "userEnteredValue"}},
+                {"repeatCell": {"range": area, "cell": {"userEnteredFormat": {
+                    "backgroundColor": {"red": 1, "green": 1, "blue": 1},
+                    "textFormat": {"bold": False, "foregroundColor": {"red": 0.1, "green": 0.1, "blue": 0.1}},
+                    "wrapStrategy": "WRAP", "verticalAlignment": "TOP"}}, "fields": "userEnteredFormat"}},
+                {"repeatCell": {"range": {**area, "endRowIndex": 1, "endColumnIndex": columns},
+                    "cell": {"userEnteredFormat": {"backgroundColor": {"red": 0.12, "green": 0.23, "blue": 0.55},
+                        "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}}}},
+                    "fields": "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat"}},
+                {"setBasicFilter": {"filter": {"range": {**area, "endRowIndex": len(values), "endColumnIndex": columns}}}},
+            ]
+            first_waitlist = next((index for index, row in enumerate(values[1:], 1) if row[2] == "Waitlist"), None)
+            if first_waitlist is not None:
+                requests.append({"repeatCell": {"range": {**area, "startRowIndex": first_waitlist,
+                    "endRowIndex": len(values), "endColumnIndex": columns}, "cell": {"userEnteredFormat": {
+                        "backgroundColor": {"red": 1, "green": 0.95, "blue": 0.75}}},
+                    "fields": "userEnteredFormat.backgroundColor"}})
+            for index, width in enumerate([125, 80, 115, 200, 180, 180, 115, 180, 240, 155, 260]):
+                requests.append({"updateDimensionProperties": {"range": {"sheetId": sheet_id,
+                    "dimension": "COLUMNS", "startIndex": index, "endIndex": index + 1},
+                    "properties": {"pixelSize": width}, "fields": "pixelSize"}})
+            self._sheets.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id, body={"requests": requests},
+            ).execute()
+            return SheetsStatusCodes.SUCCESS
+        except HttpError as e:
+            self._handle_http_error(e, "Write registration table")
 
     def rename_sheet(
         self,

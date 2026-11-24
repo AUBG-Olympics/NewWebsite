@@ -1,5 +1,5 @@
 import React from "react";
-import team from "../data/team.json"; // the normalized JSON we built
+import team from "../data/newteam.json"; // the normalized JSON we built
 import { Instagram, Facebook, Linkedin, Search } from "lucide-react";
 import CloudinaryImg from "../../lib/CloudinaryImg";
 
@@ -57,6 +57,19 @@ const TeamPage: React.FC = () => {
     }
     return true;
   });
+
+  // Apply element swaps based on filter
+  const displayedMembers = [...filtered];
+  if (activeDept === "Video" && displayedMembers.length >= 2) {
+    // Swap first two elements
+    [displayedMembers[0], displayedMembers[1]] = [displayedMembers[1], displayedMembers[0]];
+  } else if (activeDept === "Challenge Organizers" && displayedMembers.length >= 4) {
+    // Swap first and 4th element
+    [displayedMembers[0], displayedMembers[3]] = [displayedMembers[3], displayedMembers[0]];
+  } else if (activeDept === "PR" && displayedMembers.length >= 2) {
+    // Swap first two elements
+    [displayedMembers[0], displayedMembers[1]] = [displayedMembers[1], displayedMembers[0]];
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -126,7 +139,7 @@ const TeamPage: React.FC = () => {
         {/* LEFT: Grid of avatars */}
         <section aria-label="Team members" className="relative">
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-8 gap-4">
-            {filtered.map((m) => {
+            {displayedMembers.map((m) => {
               const isActive = m.id === selected.id;
               return (
                 <button
@@ -140,8 +153,8 @@ const TeamPage: React.FC = () => {
                   <CloudinaryImg
                     src={m.photo}
                     alt={m.name}
-                    width={240}
-                    className="h-full w-full object-cover"
+                    width={260}
+                    className="w-full object-cover"
                   />
 
                   {/* subtle name strip on hover/active */}
@@ -238,10 +251,10 @@ const TeamPage: React.FC = () => {
 <div className="mt-10 flex items-center justify-center">
   <div className="relative w-[260px] h-[340px] sm:w-[280px] sm:h-[360px] rounded-2xl overflow-hidden ring-2 ring-white shadow-xl bg-white">
     <CloudinaryImg
-      src={selected.photo || selected.ddayPhoto as string}
+      src={selected.photo}
       alt={`${selected.name} portrait`}
       width={320}
-      className="h-full w-full object-cover"
+      className="w-full object-cover"
     />
     <div className="absolute inset-0 ring-1 ring-black/10 rounded-2xl" />
   </div>

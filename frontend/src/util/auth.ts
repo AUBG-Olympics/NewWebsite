@@ -1,4 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.aubgolympics.com";
+import { API_BASE_URL } from "./api";
+export { API_BASE_URL };
 const TOKEN_COOKIE_NAME = "auth_token";
 
 export interface TokenPayload {
