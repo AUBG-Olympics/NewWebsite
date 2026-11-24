@@ -27,6 +27,7 @@ const ORDERED_FILTERS = [
   "Sponsorship",
   "Marketing",
   "Video",
+  "PR",
   "Logistics",
   "IT",
   "BBQ",

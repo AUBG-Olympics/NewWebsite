@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuthHeaders, API_BASE_URL } from "../../util/auth";
+import { API_BASE_URL, apiFetch } from "../../util/auth";
 
 interface Event {
   id: number;
@@ -9,8 +9,12 @@ interface Event {
   date?: string;
   is_current: boolean;
   separated_genders?: boolean;
-  teammates?: number;
+  max_teammates?: number;
+  min_teammates?: number | null;
+  whatsapp_link?: string | null;
   max_participants?: number | null;
+  max_participants_male?: number | null;
+  max_participants_female?: number | null;
 }
 
 const ChallengingWednesday: React.FC = () => {
@@ -27,9 +31,7 @@ const ChallengingWednesday: React.FC = () => {
 
   const fetchEvent = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/events/`, {
-        headers: getAuthHeaders(),
-      });
+      const response = await apiFetch(`${API_BASE_URL}/api/events/`);
       if (!response.ok) throw new Error("Failed to fetch events");
       const events: Event[] = await response.json();
       const currentEvent = events.find((e) => e.is_current);
@@ -44,8 +46,12 @@ const ChallengingWednesday: React.FC = () => {
           description: "",
           is_current: false,
           separated_genders: false,
-          teammates: 0,
+          max_teammates: 0,
+          min_teammates: null,
+          whatsapp_link: "",
           max_participants: null,
+          max_participants_male: null,
+          max_participants_female: null,
         });
         setEnabled(false);
       }
@@ -67,10 +73,26 @@ const ChallengingWednesday: React.FC = () => {
         description: event?.description || "",
         date: event?.date || null,
         separated_genders: event?.separated_genders || false,
-        teammates: event?.teammates || 0,
+        max_teammates: event?.max_teammates || 0,
+        min_teammates: event?.min_teammates ?? null,
+        whatsapp_link: event?.whatsapp_link || null,
         max_participants:
-          event?.max_participants !== undefined && event?.max_participants !== null
-            ? Math.max(0, event.max_participants)
+          event?.separated_genders
+            ? null
+            : event?.max_participants !== undefined && event?.max_participants !== null
+              ? Math.max(0, event.max_participants)
+              : null,
+        max_participants_male:
+          event?.separated_genders &&
+          event?.max_participants_male !== undefined &&
+          event?.max_participants_male !== null
+            ? Math.max(0, event.max_participants_male)
+            : null,
+        max_participants_female:
+          event?.separated_genders &&
+          event?.max_participants_female !== undefined &&
+          event?.max_participants_female !== null
+            ? Math.max(0, event.max_participants_female)
             : null,
         // Use the toggle to control whether this event is current
         is_current: enabled,
@@ -79,16 +101,14 @@ const ChallengingWednesday: React.FC = () => {
       let response;
       if (event?.id) {
         // Update existing event
-        response = await fetch(`${API_BASE_URL}/api/events/${event.id}`, {
+        response = await apiFetch(`${API_BASE_URL}/api/events/${event.id}`, {
           method: "PUT",
-          headers: getAuthHeaders(),
           body: JSON.stringify(eventData),
         });
       } else {
         // Create new event
-        response = await fetch(`${API_BASE_URL}/api/events/`, {
+        response = await apiFetch(`${API_BASE_URL}/api/events/`, {
           method: "POST",
-          headers: getAuthHeaders(),
           body: JSON.stringify(eventData),
         });
       }
@@ -175,7 +195,7 @@ const ChallengingWednesday: React.FC = () => {
                   <input
                     type="text"
                     value={event?.name || ""}
-                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", teammates: 0 }), name: e.target.value })}
+                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", max_teammates: 0 }), name: e.target.value })}
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
                     placeholder="Challenging Wednesday"
                   />
@@ -186,7 +206,7 @@ const ChallengingWednesday: React.FC = () => {
                   </label>
                   <textarea
                     value={event?.description || ""}
-                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", teammates: 0 }), description: e.target.value })}
+                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", max_teammates: 0 }), description: e.target.value })}
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
                     rows={4}
                     placeholder="Event description..."
@@ -199,7 +219,7 @@ const ChallengingWednesday: React.FC = () => {
                   <input
                     type="date"
                     value={event?.date ? event.date.split("T")[0] : ""}
-                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", teammates: 0 }), date: e.target.value })}
+                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, gender: "both", max_teammates: 0 }), date: e.target.value })}
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
                   />
                 </div>
@@ -211,7 +231,7 @@ const ChallengingWednesday: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={event?.separated_genders || false}
-                      onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, separated_genders: false, teammates: 0 }), separated_genders: e.target.checked })}
+                      onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, separated_genders: false, max_teammates: 0 }), separated_genders: e.target.checked })}
                       className="sr-only peer"
                     />
                     <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500"></div>
@@ -220,36 +240,145 @@ const ChallengingWednesday: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">
-                    Number of Teammates
+                    Max Teammates
                   </label>
                   <input
                     type="number"
                     min="0"
-                    value={event?.teammates || 0}
-                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, teammates: 0, max_participants: null }), teammates: parseInt(e.target.value, 10) || 0 })}
+                    value={event?.max_teammates || 0}
+                    onChange={(e) => setEvent({ ...(event || { id: 0, name: "", is_current: false, max_teammates: 0, min_teammates: null, whatsapp_link: "", max_participants: null }), max_teammates: parseInt(e.target.value, 10) || 0 })}
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-blue-900 mb-2">
-                    Max participants (optional)
+                    Min Teammates (optional)
                   </label>
                   <input
                     type="number"
                     min={0}
-                    value={event?.max_participants ?? ""}
+                    value={event?.min_teammates ?? ""}
                     onChange={(e) =>
                       setEvent({
-                        ...(event || { id: 0, name: "", is_current: false, teammates: 0, max_participants: null }),
-                        max_participants:
+                        ...(event || { id: 0, name: "", is_current: false, max_teammates: 0, min_teammates: null, whatsapp_link: "", max_participants: null }),
+                        min_teammates:
                           e.target.value === ""
                             ? null
                             : Math.max(0, parseInt(e.target.value, 10) || 0),
                       })
                     }
                     className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
-                    placeholder="e.g. 16 (leave empty for no cap)"
+                    placeholder="e.g. 5 (leave empty for no minimum)"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    WhatsApp Link (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={event?.whatsapp_link ?? ""}
+                    onChange={(e) =>
+                      setEvent({
+                        ...(event || { id: 0, name: "", is_current: false, max_teammates: 0, min_teammates: null, whatsapp_link: "", max_participants: null }),
+                        whatsapp_link: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                    placeholder="https://chat.whatsapp.com/..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    Max participants (optional)
+                  </label>
+                  {event?.separated_genders ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <label className="text-sm font-semibold text-blue-900">
+                        Male cap
+                        <input
+                          type="number"
+                          min={0}
+                          value={event?.max_participants_male ?? ""}
+                          onChange={(e) =>
+                            setEvent({
+                              ...(event || {
+                                id: 0,
+                                name: "",
+                                is_current: false,
+                                max_teammates: 0,
+                                min_teammates: null,
+                                whatsapp_link: "",
+                                max_participants: null,
+                                max_participants_male: null,
+                                max_participants_female: null,
+                              }),
+                              max_participants_male:
+                                e.target.value === ""
+                                  ? null
+                                  : Math.max(0, parseInt(e.target.value, 10) || 0),
+                            })
+                          }
+                          className="mt-2 w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                          placeholder="e.g. 16"
+                        />
+                      </label>
+                      <label className="text-sm font-semibold text-blue-900">
+                        Female cap
+                        <input
+                          type="number"
+                          min={0}
+                          value={event?.max_participants_female ?? ""}
+                          onChange={(e) =>
+                            setEvent({
+                              ...(event || {
+                                id: 0,
+                                name: "",
+                                is_current: false,
+                                max_teammates: 0,
+                                min_teammates: null,
+                                whatsapp_link: "",
+                                max_participants: null,
+                                max_participants_male: null,
+                                max_participants_female: null,
+                              }),
+                              max_participants_female:
+                                e.target.value === ""
+                                  ? null
+                                  : Math.max(0, parseInt(e.target.value, 10) || 0),
+                            })
+                          }
+                          className="mt-2 w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                          placeholder="e.g. 16"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <input
+                      type="number"
+                      min={0}
+                      value={event?.max_participants ?? ""}
+                      onChange={(e) =>
+                        setEvent({
+                          ...(event || {
+                            id: 0,
+                            name: "",
+                            is_current: false,
+                            max_teammates: 0,
+                            min_teammates: null,
+                            whatsapp_link: "",
+                            max_participants: null,
+                          }),
+                          max_participants:
+                            e.target.value === ""
+                              ? null
+                              : Math.max(0, parseInt(e.target.value, 10) || 0),
+                        })
+                      }
+                      className="w-full rounded-xl border-2 border-black px-4 py-3 bg-white text-blue-900"
+                      placeholder="e.g. 16 (leave empty for no cap)"
+                    />
+                  )}
                 </div>
               </div>
             }

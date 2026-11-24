@@ -8,7 +8,7 @@ const events = [
   { title: "Squid games", img: "https://res.cloudinary.com/dq9gemegi/image/upload/v1770742226/Posters/5f71894c-5300-4e6b-8dc1-ce469b418373_wyivcm.jpg", description: "Can you survie the challenge of the squid?" },
   { title: "Basketball Challenge", img: "https://res.cloudinary.com/dq9gemegi/image/upload/v1770742226/Posters/8e800f15-335c-4bdb-9799-ecaf251d33c4_pnjbvx.jpg", description: "Fall 25 Basketball Challenge" },
   { title: "Mini Olympiad", img: "https://res.cloudinary.com/dq9gemegi/image/upload/v1770742226/Posters/d7a30bc3-08f4-45af-ba10-301c8f31c526_ie971s.jpg", description: "A combination of 6 different sports" },
-  { title: "Football Challenge", img: "https://res.cloudinary.com/dq9gemegi/image/upload/v1770742226/Posters/bdcc7571-94e6-425d-9f68-29ce07a4e3bc_wfrd4n.jpg", description: "Look at how fabulous David's ass is" },
+  { title: "Football Challenge", img: "https://res.cloudinary.com/dq9gemegi/image/upload/v1770742226/Posters/bdcc7571-94e6-425d-9f68-29ce07a4e3bc_wfrd4n.jpg", description: "Football challenge Fall 25" },
 ];
 
 const ITEM_WIDTH = 340; // desktop target width

@@ -6,9 +6,11 @@ import TeamPage from "../pages/Team";
 import ChallengePage from "../pages/Challenge";
 import DDayPage from "../pages/DDayPage";
 import SignupFormPage from "../pages/SignupFormPage";
+import RegistrationSuccessPage from "../pages/RegistrationSuccessPage";
 import AdminPanel from "../pages/Admin/AdminPanel";
 import ChallengingWednesday from "../pages/Admin/ChallengingWednesday";
 import DDay from "../pages/Admin/DDay";
+import SponsorsAdmin from "../pages/Admin/SponsorsAdmin";
 import AdminRoute from "../components/AdminRoute";
 import NotFound from "../pages/NotFound";
 // import About from "../pages/About";
@@ -22,6 +24,10 @@ const Router: React.FC = () => (
     <Route path="/challenge" element={<ChallengePage />} />
     <Route path="/dday" element={<DDayPage />} />
     <Route path="/dday/signup/:eventId" element={<SignupFormPage />} />
+    <Route
+      path="/dday/signup/success/:eventId"
+      element={<RegistrationSuccessPage />}
+    />
     <Route
       path="/admin"
       element={
@@ -43,6 +49,14 @@ const Router: React.FC = () => (
       element={
         <AdminRoute>
           <DDay />
+        </AdminRoute>
+      }
+    />
+    <Route
+      path="/admin/sponsors"
+      element={
+        <AdminRoute>
+          <SponsorsAdmin />
         </AdminRoute>
       }
     />

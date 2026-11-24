@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Permanent+Marker&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -118,5 +120,19 @@ button:focus-visible {
   .flame-t1, .flame-t2, .flame-t3 {
     animation: none !important;
   }
+}
+
+@keyframes sponsor-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.sponsor-marquee-track {
+  width: max-content;
+  animation: sponsor-marquee 30s linear infinite;
 }
 

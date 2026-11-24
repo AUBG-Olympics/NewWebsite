@@ -1,8 +1,9 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { X, Menu } from "lucide-react";
 import FlameButton from "./DDayButton";
 import { useChallengingWednesday } from "../hooks/useChallengingWednesday";
+import { useDDayEnabled } from "../hooks/useDDayEnabled";
 
 const navLinkClass = (isActive?: boolean) =>
   `relative after:block after:h-[2px] after:bg-blue-500 after:transition-all after:duration-300 after:ease-in-out ${
@@ -11,7 +12,11 @@ const navLinkClass = (isActive?: boolean) =>
 
 const Navbar: React.FC = () => {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isEnabled: isChallengingWednesdayEnabled } = useChallengingWednesday();
+  const { isEnabled: isDDayEnabled } = useDDayEnabled();
+  const isDDayRoute = location.pathname.startsWith("/dday");
 
   // Close the mobile menu on route change (optional safety if parent updates)
   React.useEffect(() => {
@@ -60,29 +65,28 @@ const Navbar: React.FC = () => {
           </ul>
         </div>
 
-        {/* Right: DDAY button (desktop unchanged) */}
-        <div className="hidden md:block">
-          <Link to="/dday">
+        <div className="flex flex-row items-center gap-2 sm:gap-3 shrink-0">
+          {isDDayEnabled && (
             <FlameButton
-              className="relative"
-              animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
-              flameScale={2}
+              type="button"
+              animationPath="/assets/fire.json"
+              onClick={() => navigate("/dday")}
+              className={`text-sm px-4 py-2 ${isDDayRoute ? "ring-2 ring-yellow-400 ring-offset-2" : ""}`}
             >
-              DDAY
+              D-Day
             </FlameButton>
-          </Link>
+          )}
+          {/* Mobile hamburger (only on < md) */}
+          <button
+            type="button"
+            className="md:hidden inline-flex items-center text-white bg-blue-500 justify-center rounded-md p-2 ring-1 ring-blue-500/10 text-black hover:bg-blue-500/5"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={open}
+          >
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
-
-        {/* Mobile hamburger (only on < md) */}
-        <button
-          type="button"
-          className="md:hidden inline-flex items-center text-white bg-blue-500 justify-center rounded-md p-2 ring-1 ring-blue-500/10 text-black hover:bg-blue-500/5"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle navigation menu"
-          aria-expanded={open}
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
 
       {/* Mobile panel */}
@@ -129,19 +133,6 @@ const Navbar: React.FC = () => {
               </li>
             )}
           </ul>
-
-          {/* Mobile DDAY button */}
-          <div className="pt-2">
-            <Link to="/dday" onClick={() => setOpen(false)}>
-              <FlameButton
-                className="relative w-full justify-center"
-                animationPath="https://lottie.host/f730669c-cc04-4845-ae9c-33256dd4c101/tfcOC1ofYf.lottie"
-                flameScale={2}
-              >
-                DDAY
-              </FlameButton>
-            </Link>
-          </div>
         </div>
       </div>
     </nav>

@@ -7,7 +7,8 @@ from fastapi.security import HTTPBearer
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import JSONResponse
 
-from src.routes import auth, events, forms, sponsors, google_sheets_auth
+from src.routes import auth, events, forms, sponsors, google_sheets_auth, settings
+from src.routes import sponsor_tiers
 
 # Configure logging
 logging.basicConfig(
@@ -50,12 +51,23 @@ async def catch_all_exceptions(request, exc):
     import traceback
 
     traceback.print_exc()  # prints the real error
-    return JSONResponse({"error": str(exc)}, status_code=500)
+    # Always send CORS headers on errors so the browser doesn't report "CORS error" instead of 500
+    return JSONResponse(
+        {"error": str(exc)},
+        status_code=500,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 
 # Routers
 app.include_router(auth.router)
 app.include_router(sponsors.router)
+app.include_router(sponsor_tiers.router)
+app.include_router(settings.router)
 app.include_router(events.router)
 app.include_router(forms.router)
 # Enable ONLY if the Refresh token in the .env file is revoked

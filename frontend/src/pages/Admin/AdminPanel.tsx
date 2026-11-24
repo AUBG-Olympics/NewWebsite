@@ -85,8 +85,7 @@ const AdminPanel: React.FC = () => {
           <AdminButton
             title="Sponsors"
             description="Manage sponsor information and logos"
-            onClick={() => {}}
-            disabled={true}
+            onClick={() => handleNavigate("sponsors")}
           />
           <AdminButton
             title="D-Day"

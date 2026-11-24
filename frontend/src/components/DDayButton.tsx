@@ -6,12 +6,10 @@ type FlameButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   animationData?: object;
   /** Or a URL/path to a .lottie or .json file */
   animationPath?: string;
-  /** How much the flames extend around the button (inset padding) */
-  flameInset?: number; // px, default 16
-  /** Flame scale relative to the overlay box */
-  flameScale?: number; // 1 = fit, 1.3 = spill out
+  /** Flame scale relative to the flame box */
+  flameScale?: number;
   /** Show flames only on hover (default) or always */
-  hoverOnly?: boolean; // default true
+  hoverOnly?: boolean;
 };
 
 const FlameButton: React.FC<FlameButtonProps> = ({
@@ -19,7 +17,7 @@ const FlameButton: React.FC<FlameButtonProps> = ({
   className = "",
   animationData,
   animationPath,
-  flameScale = 1.3,
+  flameScale = 2,
   hoverOnly = true,
   onMouseEnter,
   onMouseLeave,
@@ -36,9 +34,7 @@ const FlameButton: React.FC<FlameButtonProps> = ({
     onMouseLeave?.(e);
   };
 
-  // Decide when to show/play
   const showFlames = hoverOnly ? hovered : true;
-  // Force re-mount when we switch to "play" so autoplay always kicks in
   const lottieKey = showFlames ? "flame-play" : "flame-idle";
 
   return (
@@ -46,49 +42,46 @@ const FlameButton: React.FC<FlameButtonProps> = ({
       {...rest}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
-      className={`group relative overflow-visible px-6 py-3 rounded-xl font-semibold
+      className={`group relative isolate overflow-hidden rounded-xl px-6 py-3 font-semibold
                   bg-orange-500 text-white shadow-lg
                   focus:outline-none focus:ring-2 focus:ring-yellow-400
                   transition-transform duration-150 hover:-translate-y-[1px]
                   ${className}`}
     >
-      {/* Label layer */}
-      <span className="relative z-20 inline-flex items-center gap-2">
-        {children}
-      </span>
+      {/* Flames: full-button coverage behind label (clipped to rounded-xl) */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden transition-opacity duration-150"
+        style={{ opacity: showFlames ? 1 : 0 }}
+        aria-hidden
+      >
+        <div
+          className="absolute inset-0 h-full w-full origin-center"
+          style={{
+            transform: `translateY(-40%) scale(${flameScale})`,
+            mixBlendMode: "screen",
+            filter: "saturate(125%)",
+          }}
+        >
+          <DotLottieReact
+            key={lottieKey}
+            src={animationPath}
+            data={animationData as Data}
+            autoplay={showFlames}
+            loop={showFlames}
+            style={{
+              width: "100%",
+              height: "100%",
+              minWidth: "100%",
+              minHeight: "100%",
+              display: "block",
+              objectFit: "cover",
+              objectPosition: "center center",
+            }}
+          />
+        </div>
+      </div>
 
-      {/* Flame overlay */}
-<div
-  className="pointer-events-none absolute z-20 transition-opacity duration-150 overflow-hidden rounded-xl"
-  style={{
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    opacity: showFlames ? 1 : 0,
-    mixBlendMode: "screen",
-    filter: "saturate(120%)",
-  }}
-  aria-hidden
->
-  <div
-    className="absolute inset-0 overflow-hidden rounded-xl"
-    style={{
-      transform: `scale(${flameScale})`,
-      transformOrigin: "bottom",
-    }}
-  >
-    <DotLottieReact
-      key={lottieKey}
-      src={animationPath}
-      data={animationData as Data}
-      autoplay={showFlames}
-      loop={showFlames}
-      style={{ width: "100%", height: "100%"}}
-    />
-  </div>
-</div>
-
+      <span className="relative z-10 inline-flex items-center gap-2">{children}</span>
     </button>
   );
 };
