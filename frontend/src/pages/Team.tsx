@@ -1,5 +1,5 @@
 import React from "react";
-import team from "../data/newteam.json"; // the normalized JSON we built
+import team from "../data/team.json";
 import { Instagram, Facebook, Linkedin, Search } from "lucide-react";
 import CloudinaryImg from "../../lib/CloudinaryImg";
 
